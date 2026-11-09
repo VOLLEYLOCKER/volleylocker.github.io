@@ -1,0 +1,2124 @@
+<!doctype html><html><head><meta charset=utf8><title>VOLLEYLOCKER</title><meta name="description" content="Інтерактивний тренажер розстановки 5-1 у волейболі"><meta name="theme-color" content="#0f2233"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+/* Layout: toolbar (field format + shared toggles) above a stage. Half field: court + one control panel. Whole field: control panel for the top half, one court with both halves around the net, control panel for the bottom half. One column on phones. */
+:root {
+  --bg: #edf0f3;
+  --surface: #ffffff;
+  --ink: #0f2233;
+  --on-ink: #ffffff;
+  --muted: #566675;
+  --line: #d2d9e0;
+  --accent: #c4501a;
+  --free: #cfdbe6;
+  --court: #e3894b;
+  --lines: #fff7ee;
+  --net: #0f2233;
+  --arrow: #ffffff;
+  --c-a: #f2c200;
+  --c-h: #c0322b;
+  --c-m: #1d56b8;
+  --c-l: #ffffff;
+  --on-player: #ffffff;
+  --on-lib: #0f2233;
+  --trail: #7b2fd0; --bad: #c4261d; --ok: #1f8a4c;
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
+  --font-body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c141c; --surface: #131f2a; --ink: #e8eef3; --on-ink: #0c141c; --muted: #93a3b1; --line: #26343f;
+    --accent: #f08a4b; --free: #1b2b3a; --court: #b5642d; --lines: #f3e9df; --net: #e8eef3; --arrow: #ffffff;
+    --c-a: #f5cf3a; --c-h: #e0554d; --c-m: #3b79e0; --c-l: #f2f5f8; --on-player: #ffffff; --on-lib: #0f2233; --trail: #b98cff; --bad: #ff7a70; --ok: #4cc98a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c141c; --surface: #131f2a; --ink: #e8eef3; --on-ink: #0c141c; --muted: #93a3b1; --line: #26343f;
+  --accent: #f08a4b; --free: #1b2b3a; --court: #b5642d; --lines: #f3e9df; --net: #e8eef3; --arrow: #ffffff;
+  --c-a: #f5cf3a; --c-h: #e0554d; --c-m: #3b79e0; --c-l: #f2f5f8; --on-player: #ffffff; --on-lib: #0f2233; --trail: #b98cff; --bad: #ff7a70; --ok: #4cc98a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: 34px; line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; margin: 0; }
+.brandhead { display: flex; align-items: center; gap: 14px; }
+.brandhead .logo { flex: none; line-height: 0; border-radius: 16px; overflow: hidden; border: 1px solid var(--line, currentColor); background: #fff; }
+.brandhead .logo img { width: 72px; height: 72px; display: block; max-width: 100%; }
+.about { display: grid; gap: 10px; }
+.about .ab-brand { display: flex; align-items: center; gap: 12px; }
+.about .ab-brand img { width: 56px; height: 56px; border-radius: 12px; background: #fff; border: 1px solid var(--line, currentColor); }
+.about a { color: var(--accent); font-weight: 600; }
+.about p { margin: 0; }
+.sub { margin: 4px 0 0; color: var(--muted); max-width: 60ch; }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: flex-end; }
+.group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cap { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; }
+button, .chip { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+.seg button { padding: 6px 12px; min-height: 40px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+.seg.rot { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.rot button { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 2px; min-height: 48px; line-height: 1.1; }
+.rot .n { font-family: var(--font-display); font-weight: 600; font-size: 20px; }
+.rot .z { font-size: 10.5px; opacity: .75; white-space: nowrap; }
+.mode button { min-height: 44px; padding-inline: 18px; }
+.toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; position: relative; padding: 0; overflow: hidden; }
+.chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.chip span { padding: 8px 12px; min-height: 40px; display: inline-flex; align-items: center; font-size: 14px; }
+.chip input:checked + span { background: var(--ink); color: var(--on-ink); }
+.chip input:focus-visible + span { outline: 3px solid var(--accent); outline-offset: -3px; }
+button:focus-visible, .pl:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.play[hidden], .chip[hidden] { display: none !important; }
+.play { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 16px; background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.play svg { width: 14px; height: 14px; fill: currentColor; }
+
+.stage { display: grid; gap: 18px; align-items: start; grid-template-columns: minmax(0, 560px) minmax(0, 1fr); }
+.stage[data-mode="full"] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "f f" "b a"; }
+.stage[data-mode="full"] .field { grid-area: f; }
+.stage[data-mode="full"] #panelB { grid-area: b; }
+.stage[data-mode="full"] #panelA { grid-area: a; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.field { padding: 12px; }
+svg.court { display: block; width: 100%; height: auto; max-width: 100%; }
+.panel { display: flex; flex-direction: column; gap: 14px; padding: 16px; min-width: 0; }
+.panel h2 { font-family: var(--font-display); font-weight: 600; font-size: 20px; letter-spacing: .04em; text-transform: uppercase; margin: 0; }
+.stage[data-mode="half"] .panel h2 { display: none; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.editor { display: flex; flex-direction: column; gap: 8px; border: 1px dashed var(--accent); border-radius: 8px; padding: 12px; }
+.editor[hidden], .panel[hidden], .seg button[hidden], .c3d[hidden], svg[hidden], .camseg[hidden], .group[hidden] { display: none !important; }
+.field { display: flex; flex-direction: column; gap: 10px; }
+.c3d { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 6px; touch-action: none; cursor: grab; }
+.c3d:active { cursor: grabbing; }
+.field { position: relative; }
+.fsBtn { position: absolute; top: 18px; right: 18px; z-index: 3; width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line, currentColor); background: color-mix(in srgb, var(--bg) 82%, transparent); color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; }
+.fsWide { min-height: 44px; border-radius: 10px; border: 1px solid var(--line, currentColor); background: var(--card, transparent); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+.field.fs .fsWide { display: none; }
+.fsHalf { display: none; }
+.field.fs .fsHalf.on { display: flex; flex-direction: column; gap: 4px; }
+.fsHalf .seg { gap: 4px; justify-content: center; }
+.fsHalf button { min-height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line, currentColor); background: var(--card, transparent); color: var(--ink); font: inherit; cursor: pointer; }
+.fsHalf button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.fsBar { display: none; }
+.field.fs { position: fixed; inset: 0; z-index: 100; border-radius: 0; margin: 0; background: var(--bg); padding: 6px max(6px, env(safe-area-inset-left, 0px)) max(6px, env(safe-area-inset-bottom, 0px)) max(6px, env(safe-area-inset-right, 0px)); padding-top: max(6px, env(safe-area-inset-top, 0px)); gap: 6px; }
+.field.fs .c3d { flex: 1 1 0; min-height: 0; height: 100%; aspect-ratio: auto; }
+.field.fs svg.court { flex: 1 1 0; min-height: 0; height: 100%; }
+.field.fs .fsBtn { top: max(12px, env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); }
+.field.fs .fsView.on, .field.fs .fsBar.on { display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.fsBar button[aria-pressed="true"] { background: var(--accent); color: #0f2233; border-color: var(--accent); }
+.fsBar button { min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line, currentColor); background: var(--card, transparent); color: var(--ink); font: inherit; cursor: pointer; }
+.fsBar .sc { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.camseg button { min-height: 40px; }
+.camseg select { min-height: 40px; font: inherit; color: var(--ink); background: var(--card, transparent); border: 1px solid var(--line, currentColor); border-radius: 8px; padding: 0 8px; }
+.camseg select[hidden] { display: none; }
+.stage[data-mode="game"] { grid-template-columns: minmax(0, 1fr); grid-template-areas: "f" "g"; }
+.stage[data-mode="game"] .field { grid-area: f; }
+.stage[data-mode="game"] #panelG { grid-area: g; }
+.score { display: flex; align-items: center; justify-content: center; gap: 18px; }
+.tm { display: flex; flex-direction: column; align-items: center; min-width: 120px; }
+.tm .nm { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.tm .pts { font-family: var(--font-display); font-weight: 600; font-size: 56px; line-height: 1; font-variant-numeric: tabular-nums; }
+.tm .rt { font-size: 13px; color: var(--muted); }
+.dash { font-family: var(--font-display); font-size: 40px; color: var(--muted); }
+.now { margin: 0; font-size: 18px; font-weight: 500; min-height: 1.5em; }
+.log { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14px; display: flex; flex-direction: column; gap: 2px; }
+button:disabled { opacity: .5; cursor: default; }
+.editor p { margin: 0; font-size: 14px; }
+.ed-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.ed-btns button { min-height: 44px; padding: 6px 14px; }
+.ed-btns button.main-btn { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.editor textarea { width: 100%; font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; resize: vertical; }
+.ed-msg { font-size: 13px; color: var(--muted); min-height: 1.4em; }
+
+/* court svg */
+.free { fill: var(--free); }
+.court-fill { fill: var(--court); }
+.ln { stroke: var(--lines); stroke-width: .08; fill: none; }
+.atk { stroke: var(--lines); stroke-width: .06; stroke-dasharray: .3 .2; fill: none; }
+.znum { font-family: var(--font-display); font-size: .9px; fill: var(--lines); opacity: .45; text-anchor: middle; dominant-baseline: central; transition: opacity .3s; }
+.hide-zones .znum { opacity: 0; }
+.netline { stroke: var(--net); stroke-width: .2; }
+.nettext { font-family: var(--font-display); font-size: .5px; letter-spacing: .3px; fill: var(--muted); text-anchor: middle; }
+.diag { stroke-width: .09; stroke-dasharray: .25 .2; opacity: 0; transition: opacity .3s; fill: none; }
+.show-diag .diag { opacity: .8; }
+.diag.A { stroke: var(--c-a); } .diag.H { stroke: var(--c-h); } .diag.M { stroke: var(--c-m); }
+.pl circle.body { stroke: var(--lines); stroke-width: .1; }
+.pl.A circle.body { fill: var(--c-a); } .pl.H circle.body { fill: var(--c-h); } .pl.M circle.body { fill: var(--c-m); }
+.pl.L circle.body { fill: var(--c-l); stroke: var(--on-lib); }
+.pl text { font-family: var(--font-display); font-weight: 500; font-size: .5px; fill: var(--on-player); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.pl.L text, .pl.A text { fill: var(--on-lib); }
+.pl { cursor: default; touch-action: none; user-select: none; -webkit-user-select: none; }
+.hide-labels .pl { cursor: pointer; }
+.editing .pl { cursor: grab; }
+.zr { fill-opacity: .2; stroke-width: .08; stroke-dasharray: .3 .2; pointer-events: none; }
+.zr.A { fill: var(--c-a); stroke: var(--c-a); } .zr.H { fill: var(--c-h); stroke: var(--c-h); } .zr.M { fill: var(--c-m); stroke: var(--c-m); } .zr.L { fill: var(--c-l); stroke: var(--c-l); }
+.zrt { font-family: var(--font-display); font-size: .5px; fill: var(--lines); opacity: .85; pointer-events: none; }
+.pl.bad circle.body { stroke: var(--bad); stroke-width: .35; }
+.trainbar { margin-top: 10px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; display: flex; flex-direction: column; gap: 2px; }
+.trainbar.ok { border-color: var(--ok); } .trainbar.bad { border-color: var(--bad); }
+.trainbar strong { font-weight: 600; } .trainbar.ok strong { color: var(--ok); } .trainbar.bad strong { color: var(--bad); }
+.trainbar[hidden] { display: none; }
+.trainbox { display: none; flex-direction: column; gap: 10px; }
+.panel.train .trainbox { display: flex; }
+.panel.train .sidegrp, .panel.train .phgrp, .panel.train .rowplay, .panel.train .editor { display: none !important; }
+.tr-roles { display: flex; flex-wrap: wrap; gap: 6px; }
+.tr-roles .chip span { border-left: 8px solid var(--line); }
+.tr-roles .A span { border-left-color: var(--c-a); } .tr-roles .H span { border-left-color: var(--c-h); } .tr-roles .M span { border-left-color: var(--c-m); } .tr-roles .L span { border-left-color: var(--c-l); }
+.savebox { margin-top: 16px; padding: 12px 16px; }
+.savebox summary { cursor: pointer; font-weight: 500; }
+.savebox .sb-body { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.savebox p { margin: 0; color: var(--muted); font-size: 14px; max-width: 70ch; }
+.savebox textarea { width: 100%; font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; resize: vertical; }
+.sb-msg { font-size: 13px; color: var(--muted); min-height: 1.4em; }
+.btrail { fill: none; stroke: var(--trail); stroke-width: .14; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+#trailGrp { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+#trailGrp select { min-height: 40px; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 0 8px; }
+.gbox { border-top: 1px solid var(--line); padding-top: 8px; }
+.gbox summary { cursor: pointer; font-weight: 500; }
+.str-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-top: 10px; }
+.str-col h3 { margin: 0 0 6px; font-size: 14px; }
+.str-row { display: grid; grid-template-columns: 78px 1fr 28px; gap: 8px; align-items: center; font-size: 13px; }
+.str-row input[type=range] { width: 100%; accent-color: var(--accent); }
+.str-row output { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stat-wrap { overflow-x: auto; margin-top: 10px; }
+.stat-wrap h3 { margin: 12px 0 4px; font-size: 14px; }
+.stat-wrap table { border-collapse: collapse; font-size: 13px; width: 100%; min-width: 360px; }
+.stat-wrap th, .stat-wrap td { padding: 4px 8px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; }
+.stat-wrap th:first-child, .stat-wrap td:first-child { text-align: left; }
+.stat-wrap th { color: var(--muted); font-weight: 500; }
+.pickbox { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; background: var(--surface); }
+.pickbox[hidden] { display: none; }
+.pick-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.pick-btns button { min-height: 40px; padding: 0 12px; }
+.pl text.hnt { font-family: var(--font-body); font-weight: 600; font-size: .3px; fill: var(--ink); text-anchor: middle; dominant-baseline: auto; paint-order: stroke; stroke: var(--surface); stroke-width: .1px; stroke-linejoin: round; }
+.hintwho { display: grid; gap: 6px; }
+.hintwho .seg { flex-wrap: wrap; align-items: center; }
+.hintwho .seg .who { font-size: 13px; padding: 0 6px; opacity: .8; }
+.hintwho[hidden] { display: none; }
+.hintbox { margin: 0; padding: 8px 12px; border-left: 4px solid var(--accent); background: var(--surface); border-radius: 0 8px 8px 0; font-size: 14px; }
+.hintbox[hidden] { display: none; }
+.start-sel select { min-height: 32px; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; margin-left: 6px; }
+.startrow { flex-wrap: wrap; }
+.pbar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); font-size: 13px; font-weight: 600; margin: 6px 0; }
+.pbar span { display: flex; align-items: center; padding: 0 8px; white-space: nowrap; color: #0f2233; }
+.pbar .l { background: #8fc1e8; } .pbar .r { background: #f0b27a; justify-content: flex-end; }
+.pred-h { font-size: 14px; margin: 12px 0 4px; }
+.pred-good { color: var(--ok); font-weight: 600; } .pred-bad { color: var(--bad); font-weight: 600; }
+.trainbox p { margin: 0; color: var(--muted); font-size: 14px; }
+.editing .pl:active { cursor: grabbing; }
+.ball { transition: opacity .4s; }
+.ball circle { fill: #fff; stroke: #0f2233; stroke-width: .07; }
+.ghost { fill: none; stroke: var(--arrow); stroke-width: .08; stroke-dasharray: .2 .16; opacity: .75; }
+.arr { stroke: var(--arrow); stroke-width: .13; fill: none; opacity: .9; }
+.arrows-layer { transition: opacity .3s; }
+
+@media (max-width: 980px) {
+  .stage, .stage[data-mode="full"] { grid-template-columns: minmax(0, 1fr); }
+  .stage[data-mode="full"] { grid-template-areas: "f" "b" "a"; }
+  .stage[data-mode="full"] .panel h2 { display: block; }
+  h1 { font-size: 28px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="brandhead">
+    <a class="logo" href="https://www.tiktok.com/@volleylocker" target="_blank" rel="noopener" aria-label="VolleyLocker у TikTok"><img src="data:image/jpeg;base64,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" alt="Логотип VolleyLocker" width="72" height="72"></a>
+    <div>
+      <h1 id="h1t">VOLLEYLOCKER</h1>
+      <p class="sub"><span id="sysName">Розстановка 5-1</span>. Шість ротацій: оберіть ротацію і фазу, щоб побачити розстановку.</p>
+    </div>
+  </header>
+
+  <section class="toolbar" aria-label="Формат і показ">
+    <div class="group">
+      <span class="cap" id="capMode">Формат</span>
+      <div class="seg mode" id="modeSeg" role="group" aria-labelledby="capMode"></div>
+    </div>
+    <div class="group" id="viewGroup" hidden>
+      <span class="cap" id="capView">Вигляд</span>
+      <div class="seg mode" id="viewSeg" role="group" aria-labelledby="capView"></div>
+    </div>
+    <div class="toggles" role="group" aria-label="Показати на схемі">
+      <label class="chip"><input type="checkbox" id="tLib" checked><span>Ліберо</span></label>
+      <label class="chip"><input type="checkbox" id="tZones" checked><span>Номери зон</span></label>
+      <label class="chip"><input type="checkbox" id="tDiag"><span>Діагоналі</span></label>
+      <label class="chip" hidden><input type="checkbox" id="tArrows"><span>Стрілки руху</span></label>
+      <label class="chip"><input type="checkbox" id="tHide"><span>Сховати підписи</span></label>
+      <span id="trailGrp" hidden>
+        <label class="chip"><input type="checkbox" id="tTrail"><span>Слід м’яча</span></label>
+        <select id="trailMode" aria-label="Як довго тримати слід" hidden>
+          <option value="short">Короткий слід</option>
+          <option value="rally">Увесь розіграш</option>
+          <option value="always">Постійно</option>
+        </select>
+        <button type="button" id="trailClear" hidden>Стерти слід</button>
+      </span>
+    </div>
+  </section>
+
+  <div class="stage" id="stage" data-mode="half">
+    <aside class="card panel" id="panelB" hidden aria-label="Керування лівою половиною"></aside>
+    <section class="card field" aria-label="Майданчик">
+      <svg class="court" id="court" viewBox="-1.4 -1.5 11.8 11.9" role="img" aria-label="Схема майданчика">
+        <defs>
+          <marker id="head" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" style="fill:var(--arrow)"/></marker>
+        </defs>
+        <g id="rotG">
+        <rect class="free" x="-1.4" y="-10.5" width="11.8" height="21" rx=".3"/>
+        <g id="gB" display="none"></g>
+        <g id="gA"></g>
+        <line class="netline" x1="-.7" y1="0" x2="9.7" y2="0"/>
+        <text class="nettext" id="netText" x="4.5" y="-.6">СІТКА</text>
+        </g>
+        <g id="ballLayer" display="none" pointer-events="none">
+          <clipPath id="ballclip"><circle r=".42"/></clipPath>
+          <polyline id="bTrail" class="btrail" points="" display="none"/>
+          <ellipse id="bShadow" rx=".4" ry=".18" fill="#000" opacity=".28" display="none"/>
+          <g id="bBall" display="none">
+            <g clip-path="url(#ballclip)">
+              <rect x="-.5" y="-.5" width="1" height="1" fill="#f2c500"/>
+              <rect x="-.7" y="-.17" width="1.4" height=".34" fill="#1d4fa6" transform="rotate(-35)"/>
+              <rect x="-.7" y="-.64" width="1.4" height=".28" fill="#1d4fa6" transform="rotate(-35)"/>
+              <rect x="-.7" y=".36" width="1.4" height=".28" fill="#1d4fa6" transform="rotate(-35)"/>
+            </g>
+            <circle r=".42" fill="none" stroke="#0f2233" stroke-width=".04"/>
+          </g>
+        </g>
+      </svg>
+      <canvas class="c3d" id="c3d" hidden role="img" aria-label="3D-вид майданчика"></canvas>
+      <div class="seg camseg" id="camSeg" hidden role="group" aria-label="Камера"></div>
+      <button type="button" class="fsWide" id="fsWide">⛶ На весь екран</button>
+      <button type="button" class="fsBtn" id="fsBtn" aria-label="На весь екран" title="На весь екран">⛶</button>
+      <div class="fsHalf" id="fsHalf"></div>
+      <div class="fsBar fsView" id="fsView" role="group" aria-label="Вид на весь екран"><button type="button" data-fv="2d">2D</button><button type="button" data-fv="3d">3D</button><button type="button" data-fv="both">2D + 3D</button></div>
+      <div class="fsBar" id="fsBar"><span class="sc" id="fsSc"></span><button type="button" id="fsBack">←</button><button type="button" id="fsNext">Наступна дія</button><button type="button" id="fsAuto">Автогра</button></div>
+      <div class="trainbar" id="trainBar" hidden role="status" aria-live="polite"></div>
+    </section>
+    <aside class="card panel" id="panelA" aria-label="Керування"></aside>
+    <aside class="card panel gpanel" id="panelG" hidden aria-label="Гра">
+      <div class="score" aria-live="polite">
+        <div class="tm"><span class="nm">Ліва</span><span class="pts" id="gL">0</span><span class="rt" id="rL"></span></div>
+        <span class="dash" aria-hidden="true">:</span>
+        <div class="tm"><span class="nm">Права</span><span class="pts" id="gR">0</span><span class="rt" id="rR"></span></div>
+      </div>
+      <div class="row">
+        <button type="button" id="gBack" disabled>← Крок назад</button>
+        <button type="button" class="play" id="gNext">Наступна дія</button>
+        <button type="button" id="gFwd" disabled>Крок вперед →</button>
+        <label class="chip"><input type="checkbox" id="gAuto"><span>Автогра</span></label>
+        <label class="chip"><input type="checkbox" id="gManual"><span>Я керую вибором</span></label>
+        <label class="chip"><input type="checkbox" id="gHints"><span>Підказки</span></label>
+        <div class="seg" id="gSpeed" role="group" aria-label="Швидкість"></div>
+        <button type="button" id="gNew">Нова партія</button>
+      </div>
+      <div class="hintwho" id="hintWho" hidden role="group" aria-label="Для кого підсказки">
+        <div class="seg" id="hwQuick" role="group" aria-label="Швидкий вибір"></div>
+        <div class="seg" id="hwL" role="group" aria-label="Підказки: ліва команда"></div>
+        <div class="seg" id="hwR" role="group" aria-label="Підказки: права команда"></div>
+      </div>
+      <div class="pickbox" id="gPick" hidden role="group" aria-labelledby="gPickT"><span class="cap" id="gPickT"></span><div class="pick-btns" id="gPickB"></div></div>
+      <div class="row startrow">
+        <label class="chip start-sel"><span>Початок партії: ліва, ротація</span><select id="startRotL" aria-label="Початкова ротація лівої команди"></select></label>
+        <label class="chip start-sel"><span>права, ротація</span><select id="startRotR" aria-label="Початкова ротація правої команди"></select></label>
+        <label class="chip start-sel"><span>першою подає</span><select id="startSrv" aria-label="Хто подає першим"><option value="0">ліва</option><option value="1">права</option></select></label>
+      </div>
+      <p class="now" id="gNow"></p>
+      <p class="hintbox" id="gHint" hidden aria-live="polite"></p>
+      <ol class="log" id="gLog"></ol>
+      <details class="gbox" id="strBox">
+        <summary>Сила команд</summary>
+        <p class="sb-hint">50 це звичайний рівень. Більше значить сильніше. Силу команди доповнює клас кожного гравця: подачу, прийом, атаку, блок і захист у розіграші виконують конкретні гравці. Зміни діють з наступного розіграшу.</p>
+        <div class="str-cols" id="strCols"></div>
+        <div class="ed-btns"><button type="button" id="strReset">Усі на 50</button></div>
+      </details>
+      <details class="gbox" id="predBox">
+        <summary>Прогноз і поради</summary>
+        <p class="sb-hint">Ми розігруємо партію сотні разів швидко, без анімації, за тими самими ймовірностями, що й у грі, і рахуємо шанси. Слабкі й сильні ротації видно в таблиці, а список «Що поліпшити» показує, де +10 до оцінки дає найбільший приріст.</p>
+        <div class="ed-btns"><button type="button" class="main-btn" id="predRun">Порахувати прогноз</button><label class="chip start-sel"><span>Поради для</span><select id="predTeam" aria-label="Для якої команди рахувати поради"><option value="0">лівої</option><option value="1">правої</option></select></label></div>
+        <div class="stat-wrap" id="predOut"></div>
+      </details>
+      <details class="gbox" id="statBox">
+        <summary>Статистика партії</summary>
+        <div class="stat-wrap" id="statWrap"></div>
+      </details>
+    </aside>
+  </div>
+  <details class="card savebox" id="saveBox">
+    <summary>Мої розстановки: зберегти і перенести</summary>
+    <div class="sb-body">
+      <p>Усе, що ви змінили через «Редагувати позиції», зберігається в цьому браузері автоматично. Щоб перенести розстановки на інший пристрій чи надіслати колезі, скопіюйте їх текстом, а там вставте у поле нижче і натисніть «Завантажити».</p>
+      <div class="ed-btns">
+        <button type="button" class="main-btn" id="sbCopy">Скопіювати всі мої розстановки</button>
+        <button type="button" id="sbLoad">Завантажити з тексту</button>
+        <button type="button" id="sbReset">Скинути всі правки</button>
+      </div>
+      <textarea id="sbText" rows="4" aria-label="Текст з розстановками" placeholder="Вставте сюди текст, скопійований з іншої сторінки"></textarea>
+      <span class="sb-msg" id="sbMsg" role="status" aria-live="polite"></span>
+    </div>
+  </details>
+  <details class="card savebox" id="aboutBox">
+    <summary>Про застосунок і автора</summary>
+    <div class="sb-body about">
+      <div class="ab-brand"><img src="data:image/jpeg;base64,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" alt="" width="56" height="56"><div><strong>VolleyLocker</strong><br><span class="sub">Інтерактивний тренажер розстановки 5-1</span></div></div>
+      <p>Застосунок допомагає вчити ротації, фази гри, блок, захист і розіграші в 2D і 3D, пробувати розстановки в тренажері та оцінювати шанси команди.</p>
+      <p>Автор: VolleyLocker. Відео про волейбол і тренування: <a href="https://www.tiktok.com/@volleylocker" target="_blank" rel="noopener">TikTok @volleylocker</a></p>
+      <p class="sub">© 2026 VolleyLocker. Усі права захищені. <a href="privacy.html">Політика конфіденційності</a></p>
+    </div>
+  </details>
+</div>
+
+<script>
+(function () {
+  var ZSEQ = [1, 6, 5, 4, 3, 2];
+  var ZXY = { 1: [7.5, 6], 6: [4.5, 6], 5: [1.5, 6], 4: [1.5, 1.5], 3: [4.5, 1.5], 2: [7.5, 1.5] };
+  var ROLES = [
+    { id: 'S',  short: 'Зв',   name: 'Зв’язуючий',              type: 'A' },
+    { id: 'O',  short: 'Діаг', name: 'Діагональний',            type: 'A' },
+    { id: 'H1', short: 'Дг1',  name: 'Догравальник 1',          type: 'H' },
+    { id: 'H2', short: 'Дг2',  name: 'Догравальник 2',          type: 'H' },
+    { id: 'M1', short: 'ЦБ1',  name: 'Центральний блокуючий 1', type: 'M' },
+    { id: 'M2', short: 'ЦБ2',  name: 'Центральний блокуючий 2', type: 'M' }
+  ];
+  var R1 = ['S', 'M1', 'H2', 'O', 'M2', 'H1'];
+  // Система гри: '51' (один зв’язуючий і діагональний) або '42' (два зв’язуючі, два догравальники, два ЦБ)
+  var SYS = '51';
+  function isSt(id) { return id === 'S' || (SYS === '42' && id === 'O'); }
+  function setterRole(base) { return SYS === '42' && !(base.S >= 2 && base.S <= 4) ? 'O' : 'S'; }
+  var SWAP = [1, 0, 3, 2, 5, 4];
+  // У 4-2 завжди один зв’язуючий на першій лінії, як у 5-1 з ротацій 4-6. Ротації 1-3 це ті самі позиції з обміном парних ролей.
+  function dataFor(phase, rot) {
+    if (SYS !== '42') return DATA[phase][rot];
+    var a = DATA[phase][rot <= 3 ? rot + 3 : rot];
+    if (rot > 3) return a;
+    var o = [];
+    for (var i = 0; i < 6; i++) o.push(a[2 * SWAP[i]], a[2 * SWAP[i] + 1]);
+    return o;
+  }
+  var PAIRS = [['S', 'O'], ['H1', 'H2'], ['M1', 'M2']];
+  // Порядок кнопок. side: фаза доступна лише для подачі (serve) або прийому (recv).
+  var PHASES = [
+    { id: 'base', title: 'Стартова' },
+    { id: 'srv',  title: 'Подача', side: 'serve', custom: true },
+    { id: 'recv', title: 'Прийомна', side: 'recv', custom: true },
+    { id: 'game', title: 'Ігрова' },
+    { id: 'atk',  title: 'Атакуюча', custom: true },
+    { id: 'hit',  title: 'Атака', custom: true },
+    { id: 'defL', title: 'Захисна ліва', custom: true },
+    { id: 'defC', title: 'Захисна центральна', custom: true },
+    { id: 'defR', title: 'Захисна права', custom: true }
+  ];
+  var PH = {}; PHASES.forEach(function (p) { PH[p.id] = p; });
+
+  function baseLineup(rot) {
+    var k = rot - 1, z = {};
+    ZSEQ.forEach(function (zone, i) { z[R1[(i - k + 6) % 6]] = zone; });
+    return z;
+  }
+  function gameLineup(base, side) {
+    var g = {};
+    ROLES.forEach(function (r) {
+      var front = base[r.id] >= 2 && base[r.id] <= 4;
+      g[r.id] = r.type === 'A' ? (front ? 2 : 1) : r.type === 'H' ? (front ? 4 : 6) : (front ? 3 : 5);
+    });
+    // Ротація 1 при прийомі: Дг1 і діагональний міняються місцями
+    if (SYS === '51' && base.S === 1 && side === 'recv') { var tmp = g.O; g.O = g.H1; g.H1 = tmp; }
+    return g;
+  }
+  function targetFor(lineup) {
+    var t = {};
+    ROLES.forEach(function (r) { t[r.id] = { x: ZXY[lineup[r.id]][0], y: ZXY[lineup[r.id]][1] }; });
+    return t;
+  }
+
+  // Позиції: по ротаціях 1..6, у порядку ролей Зв, Діаг, Дг1, Дг2, ЦБ1, ЦБ2 (x, y).
+  var DATA = {
+    recv: [null,
+      [8.3,7.1, 1.5,1.5, 7.4,5.8, 1.9,4.7, 4.5,6, 4.5,1.5],
+      [6,2.3, 6,.8, 7.5,6, 1.9,4.7, 4.6,6, 7.5,2.3],
+      [3.4,2.6, 7.5,1.5, 4.5,6, 1.9,4.7, .6,.7, 7.5,6],
+      [.7,.8, 8.4,8.2, 4.5,6.3, 1.9,4.7, 1.3,2.2, 7.3,6.2],
+      [6,.8, 6.9,8, 1.9,4.7, 7.5,6, 7.5,1.5, 4.7,6.1],
+      [6,.8, 3.8,8, 1.9,4.8, 4.5,6, 7.5,6, .7,.9]],
+    atk: [null,
+      [6,.8, 9.7,3.7, -.7,3.8, 3.1,5.4, 1.5,6.9, 4.7,3.8],
+      [6,.8, 9.7,3.7, 3.1,5.4, -.7,3.7, 1.5,6.9, 4.7,3.8],
+      [6,.8, 9.7,3.7, 3.1,5.2, -.7,3.7, 4.7,3.8, 1.5,6.9],
+      [6,.8, 9.7,8.3, 3.1,5.2, -.7,3.7, 4.7,3.8, 1.5,6.9],
+      [6,.8, 9.7,8.3, -.7,3.8, 3,5.3, 4.7,3.8, 1.5,6.9],
+      [6,.8, 9.7,8.3, -.7,3.7, 3.1,5.4, 1.5,6.9, 4.7,3.8]],
+    hit: [null,
+      [6,.8, 8.9,.8, .1,.8, 3.1,1.4, 1.5,6.9, 4.5,.8],
+      [6,.8, 8.9,.8, 3.1,1.4, .1,.8, 1.5,6.9, 4.5,.8],
+      [6,.8, 8.9,.8, 3.1,1.4, .1,.8, 4.5,.8, 1.5,6.9],
+      [6,.8, 7.8,.8, 3.1,1.4, .1,.8, 4.5,.8, 1.5,6.9],
+      [6,.8, 7.8,.8, .1,.8, 3.1,1.4, 4.5,.8, 1.5,6.9],
+      [6,.8, 7.8,.8, .1,.8, 3.1,1.4, 1.5,6.9, 4.5,.8]],
+    defL: [null,
+      [7.5,7, 7.6,3, 1.2,.8, 4.5,6, .1,6.1, 3,.8],
+      [7.5,7, 7.6,3, 4.5,6, 1.1,.8, 0,6.2, 3,.8],
+      [7.5,7, 7.6,3, 4.5,6, 1.1,.8, 3,.8, .1,6.1],
+      [7.6,2.9, 7.5,7, 4.5,6, 1.1,.8, 3,.8, .1,6.1],
+      [7.6,3, 7.5,7, 1.1,.8, 4.5,6, 3,.8, .1,6],
+      [7.5,1.5, 7.5,7, 1.1,.8, 4.5,6, .1,6, 3,.8]],
+    defC: [null,
+      [7.5,6, 7.5,1.5, 1.5,1.5, 4.5,7.4, 1.5,6, 4.5,.8],
+      [7.5,6, 7.5,1.5, 4.5,7.4, 1.5,1.5, 1.5,6, 4.4,.8],
+      [7.5,6, 7.5,1.5, 4.5,7.4, 1.5,1.5, 4.4,.8, 1.5,6],
+      [7.5,1.5, 7.5,6, 4.5,7.4, 1.5,1.5, 4.5,.8, 1.5,6],
+      [7.5,1.5, 7.5,6, 1.5,1.5, 4.5,7.4, 4.4,.8, 1.5,6],
+      [7.5,1.5, 7.5,6, 1.5,1.5, 4.5,7.4, 1.5,6, 4.4,.8]],
+    defR: [null,
+      [9,6, 7.9,.8, 1.3,3, 4.5,6, 1.5,7.1, 6,.8],
+      [9,6, 7.9,.8, 4.5,6, 1.3,3, 1.5,7.1, 6,.8],
+      [9,6, 7.9,.8, 4.5,6, 1.5,1.5, 6,.8, 1.5,7.1],
+      [7.9,.8, 8.9,6.1, 4.5,6, 1.3,3, 6,.8, 1.5,7.1],
+      [7.9,.8, 8.9,6.1, 1.3,3, 4.5,6, 6,.8, 1.5,7.1],
+      [7.9,.8, 8.9,6.1, 1.3,3, 4.5,6, 1.5,7.1, 6,.8]]
+  };
+  // Подача: ігрова розстановка, подавальник (з зони 1 у стартовій) стоїть за лінією. Ротації 2, 3, 5, 6 уточнені вручну.
+  DATA.srv = [null];
+  for (var n = 1; n <= 6; n++) {
+    var bl = baseLineup(n), gl = gameLineup(bl, 'serve'), arr = [];
+    ROLES.forEach(function (ro) { var p = bl[ro.id] === 1 ? [8, 9.7] : ZXY[gl[ro.id]]; arr.push(p[0], p[1]); });
+    DATA.srv.push(arr);
+  }
+  DATA.srv[2] = [7.5,6, 7.5,1.5, 4.5,9.8, 1.5,1.5, 1.5,6, 4.5,1.5];
+  DATA.srv[3] = [7.5,6, 7.5,1.5, 4.5,6, 1.5,1.5, 4.5,1.5, 1.5,9.8];
+  DATA.srv[5] = [7.5,1.5, 7.5,6, 1.5,1.5, 4.5,9.8, 4.5,1.5, 1.5,6];
+  DATA.srv[6] = [7.5,1.5, 7.5,6, 1.5,1.5, 4.5,6, 1.5,9.8, 4.5,1.5];
+  // Ротація 1 при прийомі: відрізняються лише ці фази
+  var ALT = {
+    atk:  [6,.8, -.7,3.7, 9.7,3.6, 3.1,5.4, 1.5,6.9, 4.7,3.8],
+    hit:  [6,.8, 0,.8, 8.9,.8, 3.1,1.4, 1.5,6.9, 4.5,.8],
+    defL: [7.5,7, 1.1,.8, 8,3, 4.5,6, .1,6.1, 3,.8],
+    defC: [7.5,6, 1.4,1.4, 7.5,1.4, 4.5,7.4, 1.5,6, 4.5,.8],
+    defR: [9,6, 1.3,3, 7.9,.8, 4.5,6, 1.5,7.1, 6,.8]
+  };
+  function fromArr(a) {
+    var o = {};
+    ROLES.forEach(function (r, i) { o[r.id] = { x: a[i * 2], y: a[i * 2 + 1] }; });
+    return o;
+  }
+
+  // Загальні налаштування показу
+  var G = { hints: false, trail: false, trailMode: 'short', view: '2d', mode: 'half', lib: true, zones: true, diag: false, arrows: false, hide: false };
+  var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var NS = 'http://www.w3.org/2000/svg';
+  function $(id) { return document.getElementById(id); }
+  function el(name, attrs, parent) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function labelFor(r, phase, zone) {
+    var isLib = G.lib && r.type === 'M' && (zone === 1 || zone === 5 || zone === 6) && !((phase === 'base' || phase === 'srv') && zone === 1);
+    return { text: isLib ? 'Л' : r.short, lib: isLib };
+  }
+
+  var teams = [];
+
+  function makeTeam(key, flipped, gEl, panel, title) {
+    var t = { rot: 1, side: 'serve', phase: 'base', edit: false, pos: {}, lineup: null, custom: {}, edited: {}, dragging: null, raf: 0, token: 0, playTok: 0, revealed: {} };
+    if (flipped) gEl.setAttribute('transform', 'translate(9 0) rotate(180)');
+
+    // Майданчик половини
+    el('rect', { class: 'court-fill', x: 0, y: 0, width: 9, height: 9 }, gEl);
+    el('path', { class: 'ln', d: 'M0 0H9V9H0Z' }, gEl);
+    el('path', { class: 'atk', d: 'M0 3H9M3 0V3M6 0V3' }, gEl);
+    var zTexts = [], uGroups = [];
+    var zn = el('g', {}, gEl);
+    [[4, 1.5, 2.65], [3, 4.5, 2.65], [2, 7.5, 2.65], [5, 1.5, 8.2], [6, 4.5, 8.2], [1, 7.5, 8.2]].forEach(function (a) {
+      var tx = el('text', { class: 'znum', x: a[1], y: a[2] }, zn); tx.textContent = a[0];
+      zTexts.push([tx, a[1], a[2]]);
+    });
+    var trainG = el('g', {}, gEl);
+    var zrEls = {}, zrTx = {};
+    ROLES.forEach(function (r) { zrEls[r.id] = el('rect', { class: 'zr', rx: .15 }, trainG); zrTx[r.id] = el('text', { class: 'zrt' }, trainG); });
+    var diagG = el('g', {}, gEl);
+    var diagEls = PAIRS.map(function (p) { return el('line', { class: 'diag ' + ROLES.filter(function (r) { return r.id === p[0]; })[0].type }, diagG); });
+    var arrowsG = el('g', { class: 'arrows-layer' }, gEl);
+    var playersG = el('g', {}, gEl);
+
+    // Панель керування
+    panel.innerHTML =
+      '<h2 class="pt"></h2>' +
+      '<div class="group"><span class="cap">Ротація (де стоїть зв’язуючий)</span><div class="seg rot"></div></div>' +
+      '<div class="group sidegrp"><span class="cap">Хто починає розіграш</span><div class="seg side"></div></div>' +
+      '<div class="group phgrp"><span class="cap">Розстановка</span><div class="seg phase"></div></div>' +
+      '<div class="trainbox"><p>Перетягуйте гравців по майданчику. Кольорові прямокутники показують, де кожен гравець може стояти, не порушуючи розстановку: вони змінюються разом з рухом сусідів. Якщо один гравець заходить за іншого, з’являється попередження.</p>' +
+      '<div class="ed-btns"><button type="button" class="main-btn tr-reset">Повернути стартову розстановку</button></div>' +
+      '<label class="chip"><input type="checkbox" class="tr-zones" checked><span>Показувати дозволені зони</span></label>' +
+      '<span class="cap">Зони яких гравців показувати</span><div class="tr-roles"></div></div>' +
+      '<div class="row rowplay"><button type="button" class="play" hidden><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 1l11 6-11 6z"/></svg>Показати перехід</button>' +
+      '<label class="chip"><input type="checkbox" id="' + key + 'Edit"><span>Редагувати позиції</span></label></div>' +
+      '<div class="editor" hidden><p>Перетягніть гравців на місця в цій ротації, потім скопіюйте дані, щоб зберегти їх чи поділитися.</p>' +
+      '<div class="ed-btns"><button type="button" class="main-btn ed-copy">Скопіювати дані</button><button type="button" class="ed-reset">Скинути цю ротацію</button></div>' +
+      '<textarea id="' + key + 'Data" readonly rows="4" aria-label="Дані розстановки"></textarea><span class="ed-msg" aria-live="polite"></span></div>';
+    function q(s) { return panel.querySelector(s); }
+    function qa(s) { return panel.querySelectorAll(s); }
+    q('.pt').textContent = title;
+
+    // Гравці
+    var pl = {};
+    ROLES.forEach(function (r) {
+      var g = el('g', { class: 'pl ' + r.type, tabindex: 0, role: 'button', 'aria-label': r.name }, playersG);
+      var u = el('g', {}, g);
+      uGroups.push(u);
+      el('circle', { class: 'body', r: .72 }, u);
+      var tx = el('text', {}, u);
+      var hn = el('text', { class: 'hnt', y: -.86 }, u);
+      var b = el('g', { class: 'ball', opacity: 0 }, u);
+      el('circle', { cx: .62, cy: -.62, r: .24 }, b);
+      pl[r.id] = { g: g, t: tx, b: b, h: hn };
+      g.addEventListener('click', function () { if (G.hide) { t.revealed[r.id] = !t.revealed[r.id]; paintLabels(); } });
+      g.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (G.hide) { t.revealed[r.id] = !t.revealed[r.id]; paintLabels(); } } });
+      g.addEventListener('pointerdown', function (e) {
+        if (!(key === 'A' && G.mode === 'train') && (!PH[t.phase].custom || !t.edit)) return;
+        e.preventDefault(); t.token++; cancelAnimationFrame(t.raf);
+        t.dragging = r.id; try { g.setPointerCapture(e.pointerId); } catch (x) {}
+      });
+      g.addEventListener('pointermove', function (e) {
+        if (t.dragging !== r.id) return;
+        var svg = $('court'), pt = svg.createSVGPoint();
+        pt.x = e.clientX; pt.y = e.clientY;
+        var p = pt.matrixTransform(gEl.getScreenCTM().inverse());
+        t.pos[r.id] = { x: Math.min(9.7, Math.max(-.7, Math.round(p.x * 10) / 10)), y: Math.min(10, Math.max(.3, Math.round(p.y * 10) / 10)) };
+        draw(); paintTrain();
+      });
+      function endDrag() {
+        if (t.dragging !== r.id) return;
+        t.dragging = null;
+        if (key === 'A' && G.mode === 'train') { paintTrain(); return; }
+        var c = customFor(t.rot);
+        c[r.id] = { x: t.pos[r.id].x, y: t.pos[r.id].y };
+        t.edited[customKey(t.rot)] = true; paintEditor(); if (t.onChange) t.onChange();
+      }
+      g.addEventListener('pointerup', endDrag);
+      g.addEventListener('pointercancel', endDrag);
+    });
+
+    function draw() {
+      ROLES.forEach(function (r) { var p = t.pos[r.id]; pl[r.id].g.setAttribute('transform', 'translate(' + p.x + ' ' + p.y + ')'); });
+      PAIRS.forEach(function (pr, i) {
+        var a = t.pos[pr[0]], b = t.pos[pr[1]], l = diagEls[i];
+        l.setAttribute('x1', a.x); l.setAttribute('y1', a.y); l.setAttribute('x2', b.x); l.setAttribute('y2', b.y);
+      });
+    }
+    function animateTo(target, dur) {
+      cancelAnimationFrame(t.raf);
+      var token = ++t.token;
+      if (!dur || reduced) {
+        ROLES.forEach(function (r) { t.pos[r.id] = { x: target[r.id].x, y: target[r.id].y }; });
+        draw(); return;
+      }
+      var from = {};
+      ROLES.forEach(function (r) { from[r.id] = { x: t.pos[r.id].x, y: t.pos[r.id].y }; });
+      var t0 = performance.now();
+      (function step(now) {
+        if (token !== t.token) return;
+        var p = Math.min(1, (now - t0) / dur);
+        var e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        ROLES.forEach(function (r) {
+          t.pos[r.id] = { x: from[r.id].x + (target[r.id].x - from[r.id].x) * e, y: from[r.id].y + (target[r.id].y - from[r.id].y) * e };
+        });
+        draw();
+        if (p < 1) t.raf = requestAnimationFrame(step);
+      })(t0);
+    }
+
+    function customKey(rot) {
+      var alt = SYS === '51' && rot === 1 && t.side === 'recv' && ALT[t.phase];
+      return (SYS === '42' ? 'w' : '') + t.phase + rot + (alt ? 'r' : '');
+    }
+    function customFor(rot) {
+      var k = customKey(rot);
+      if (!t.custom[k]) {
+        var alt = SYS === '51' && rot === 1 && t.side === 'recv' && ALT[t.phase];
+        t.custom[k] = fromArr(alt || dataFor(t.phase, rot));
+      }
+      return t.custom[k];
+    }
+
+    function paintLabels() {
+      ROLES.forEach(function (r) {
+        var l = labelFor(r, t.phase, t.lineup[r.id]);
+        pl[r.id].t.textContent = G.hide && !t.revealed[r.id] ? '?' : l.text;
+        pl[r.id].g.setAttribute('class', 'pl ' + (l.lib ? 'L' : r.type));
+        pl[r.id].b.setAttribute('opacity', t.phase === 'base' && t.lineup[r.id] === 1 ? 1 : 0);
+      });
+    }
+    function paintArrows() {
+      arrowsG.innerHTML = '';
+      arrowsG.style.opacity = G.arrows && t.phase === 'game' ? 1 : 0;
+      var base = baseLineup(t.rot), game = gameLineup(base, t.side);
+      ROLES.forEach(function (r) {
+        if (base[r.id] === game[r.id]) return;
+        var a = ZXY[base[r.id]], b = ZXY[game[r.id]];
+        var dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+        var ox = -uy * .3, oy = ux * .3;
+        el('circle', { class: 'ghost', cx: a[0], cy: a[1], r: .72 }, arrowsG);
+        el('line', { class: 'arr', x1: a[0] + ux * .85 + ox, y1: a[1] + uy * .85 + oy, x2: b[0] - ux * 1.05 + ox, y2: b[1] - uy * 1.05 + oy, 'marker-end': 'url(#head)' }, arrowsG);
+      });
+    }
+    function exportText() {
+      var o = { team: key, phase: t.phase, side: t.side, edited: Object.keys(t.edited).filter(function (k) { return k.indexOf(t.phase) === 0; }), recv: {} };
+      for (var n = 1; n <= 6; n++) {
+        var f = customFor(n), m = {};
+        ROLES.forEach(function (ro) { m[ro.id] = [f[ro.id].x, f[ro.id].y]; });
+        o.recv[n] = m;
+      }
+      return JSON.stringify(o);
+    }
+    function paintEditor() {
+      var on = !!PH[t.phase].custom && t.edit;
+      q('.editor').hidden = !on;
+      gEl.classList.toggle('editing', on);
+      if (!on) return;
+      q('textarea').value = exportText();
+      var cnt = Object.keys(t.edited).filter(function (k) { return k.indexOf(t.phase) === 0; }).length;
+      q('.ed-msg').textContent = 'Змінено ротацій: ' + cnt + ' з 6. Дані зберігаються лише на цій сторінці.';
+    }
+    function paintTrain() {
+      var on = key === 'A' && G.mode === 'train';
+      panel.classList.toggle('train', on);
+      trainG.setAttribute('display', on && q('.tr-zones').checked ? 'inline' : 'none');
+      q('.pt').textContent = on ? 'Тренажер: стартова розстановка' : title;
+      var bar = $('trainBar'); if (key === 'A') bar.hidden = !on;
+      if (!on) { ROLES.forEach(function (r) { pl[r.id].g.classList.remove('bad'); }); return; }
+      gEl.classList.add('editing');
+      var zr = {}; ROLES.forEach(function (r) { zr[t.lineup[r.id]] = r; });
+      function Pz(z) { return t.pos[zr[z].id]; }
+      function nmz(z) { return labelFor(zr[z], 'base', z).text; }
+      var msgs = [], bad = {};
+      function flag(a, b, m) { msgs.push(m); bad[zr[a].id] = 1; bad[zr[b].id] = 1; }
+      [[4, 3], [3, 2], [5, 6], [6, 1]].forEach(function (pr) {
+        if (Pz(pr[0]).x >= Pz(pr[1]).x) flag(pr[0], pr[1], 'Гравець зони ' + pr[0] + ' (' + nmz(pr[0]) + ') зайшов за гравця зони ' + pr[1] + ' (' + nmz(pr[1]) + '): він має стояти лівіше.');
+      });
+      [[4, 5], [3, 6], [2, 1]].forEach(function (pr) {
+        if (Pz(pr[0]).y >= Pz(pr[1]).y) flag(pr[0], pr[1], 'Гравець зони ' + pr[1] + ' (' + nmz(pr[1]) + ') зайшов за гравця зони ' + pr[0] + ' (' + nmz(pr[0]) + ') наперед: він має стояти далі від сітки.');
+      });
+      ROLES.forEach(function (r) {
+        var z = t.lineup[r.id], p = t.pos[r.id];
+        if (p.x < 0 || p.x > 9 || p.y < 0 || p.y > 9) { msgs.push('Гравець зони ' + z + ' (' + nmz(z) + ') поза межами майданчика.'); bad[r.id] = 1; }
+      });
+      ROLES.forEach(function (r) {
+        var z = t.lineup[r.id], x0 = 0, x1 = 9, y0 = 0, y1 = 9;
+        if (z === 4) { x1 = Pz(3).x; y1 = Pz(5).y; }
+        else if (z === 3) { x0 = Pz(4).x; x1 = Pz(2).x; y1 = Pz(6).y; }
+        else if (z === 2) { x0 = Pz(3).x; y1 = Pz(1).y; }
+        else if (z === 5) { x1 = Pz(6).x; y0 = Pz(4).y; }
+        else if (z === 6) { x0 = Pz(5).x; x1 = Pz(1).x; y0 = Pz(3).y; }
+        else if (z === 1) { x0 = Pz(6).x; y0 = Pz(2).y; }
+        x0 = Math.max(0, x0); x1 = Math.min(9, x1); y0 = Math.max(0, y0); y1 = Math.min(9, y1);
+        var rc = zrEls[r.id], w = x1 - x0, h = y1 - y0, l = labelFor(r, 'base', z);
+        roleChips[r.id].sp.textContent = l.text + ' · зона ' + z; roleChips[r.id].lb.className = 'chip ' + (l.lib ? 'L' : r.type);
+        if (!zoneOn[r.id]) w = 0;
+        rc.setAttribute('class', 'zr ' + (l.lib ? 'L' : r.type));
+        if (w <= 0 || h <= 0) { rc.setAttribute('width', 0); rc.setAttribute('height', 0); zrTx[r.id].textContent = ''; }
+        else {
+          rc.setAttribute('x', x0); rc.setAttribute('y', y0); rc.setAttribute('width', w); rc.setAttribute('height', h);
+        }
+        pl[r.id].g.classList.toggle('bad', !!bad[r.id]);
+      });
+      if (key === 'A') {
+        bar.className = 'trainbar ' + (msgs.length ? 'bad' : 'ok');
+        bar.innerHTML = msgs.length ? '<strong>Порушення розстановки</strong>' + msgs.map(function (m) { return '<span>' + m + '</span>'; }).join('') : '<strong>Розстановка правильна</strong><span>Ніхто нікого не перетнув.</span>';
+      }
+    }
+    t.paintTrain = paintTrain;
+    function paintControls() {
+      qa('.rot button').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.rot === t.rot)); });
+      qa('.side button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.side === t.side)); });
+      qa('.phase button').forEach(function (b) {
+        var p = PH[b.dataset.ph];
+        b.hidden = !!p.side && p.side !== t.side;
+        b.style.order = PHASES.indexOf(p) - (p.id === 'recv' ? 1 : 0);
+        b.setAttribute('aria-pressed', String(p.id === t.phase));
+      });
+    }
+
+    t.render = function (dur) {
+      t.lineup = t.phase === 'game' ? gameLineup(baseLineup(t.rot), t.side) : baseLineup(t.rot);
+      t.target = PH[t.phase].custom ? customFor(t.rot) : targetFor(t.lineup);
+      animateTo(t.target, dur);
+      paintLabels(); paintArrows(); paintEditor(); paintControls(); paintTrain();
+    };
+    t.init = function () {
+      var b = targetFor(baseLineup(1));
+      ROLES.forEach(function (r) { t.pos[r.id] = { x: b[r.id].x, y: b[r.id].y }; });
+      draw(); t.render(0);
+    };
+    t.resetReveal = function () { t.revealed = {}; };
+    t.setHints = function (m) { ROLES.forEach(function (r) { pl[r.id].h.textContent = (G.hints && m && m[r.id]) || ''; }); };
+    // Підписи завжди лишаються рівними: компенсуємо поворот групи
+    t.setOrient = function (angle) {
+      zTexts.forEach(function (z) { z[0].setAttribute('transform', angle ? 'rotate(' + angle + ' ' + z[1] + ' ' + z[2] + ')' : ''); });
+      uGroups.forEach(function (u) { u.setAttribute('transform', angle ? 'rotate(' + angle + ')' : ''); });
+    };
+    t.setOrient(flipped ? 180 : 0);
+
+    // Керування
+    for (var r = 1; r <= 6; r++) {
+      (function (n) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.dataset.rot = n;
+        b.innerHTML = '<span class="n">' + n + '</span><span class="z">зона ' + baseLineup(n).S + '</span>';
+        b.addEventListener('click', function () { t.playTok++; t.revealed = {}; t.rot = n; t.render(700); });
+        q('.rot').appendChild(b);
+      })(r);
+    }
+    [['serve', 'Ми подаємо'], ['recv', 'Ми приймаємо']].forEach(function (s) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.dataset.side = s[0]; b.textContent = s[1];
+      b.addEventListener('click', function () {
+        t.playTok++; t.revealed = {}; t.side = s[0];
+        if (t.phase === 'recv' && s[0] === 'serve') t.phase = 'srv';
+        else if (t.phase === 'srv' && s[0] === 'recv') t.phase = 'recv';
+        t.render(700);
+      });
+      q('.side').appendChild(b);
+    });
+    PHASES.forEach(function (p) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.dataset.ph = p.id; b.textContent = p.title;
+      b.addEventListener('click', function () { t.playTok++; t.revealed = {}; t.phase = p.id; t.render(800); });
+      q('.phase').appendChild(b);
+    });
+    q('.tr-reset').addEventListener('click', function () { t.render(450); });
+    q('.tr-zones').addEventListener('change', paintTrain);
+    var zoneOn = {}, roleChips = {};
+    ROLES.forEach(function (r) {
+      zoneOn[r.id] = true;
+      var lb = document.createElement('label'), inp = document.createElement('input'), sp = document.createElement('span');
+      lb.className = 'chip'; inp.type = 'checkbox'; inp.checked = true; lb.appendChild(inp); lb.appendChild(sp);
+      inp.addEventListener('change', function () { zoneOn[r.id] = inp.checked; paintTrain(); });
+      q('.tr-roles').appendChild(lb); roleChips[r.id] = { lb: lb, sp: sp };
+    });
+    q('.play').addEventListener('click', function () {
+      var tok = ++t.playTok;
+      t.revealed = {}; t.phase = 'base'; t.render(450);
+      setTimeout(function () { if (tok === t.playTok) { t.phase = 'game'; t.render(900); } }, 800);
+    });
+    q('.tEdit, #' + key + 'Edit').addEventListener('change', function (e) { t.edit = e.target.checked; paintEditor(); });
+    q('.ed-reset').addEventListener('click', function () {
+      delete t.custom[customKey(t.rot)]; delete t.edited[customKey(t.rot)]; t.render(500); if (t.onChange) t.onChange();
+    });
+    q('.ed-copy').addEventListener('click', function () {
+      var ta = q('textarea'), msg = q('.ed-msg'), text = exportText();
+      ta.value = text;
+      function fallback() { ta.focus(); ta.select(); msg.textContent = 'Текст виділено, натисніть Ctrl+C (на телефоні: утримуйте і «Копіювати»).'; }
+      try { navigator.clipboard.writeText(text).then(function () { msg.textContent = 'Скопійовано. Вставте дані в чат.'; }, fallback); } catch (e) { fallback(); }
+    });
+    t.exportState = function () { return { custom: t.custom, edited: t.edited }; };
+    t.clearState = function () { t.custom = {}; t.edited = {}; };
+    t.importState = function (o) {
+      var n = 0;
+      if (!o || typeof o.custom !== 'object' || !o.custom) return 0;
+      Object.keys(o.custom).forEach(function (k) {
+        if (!/^[a-zA-Z]+[1-6]r?$/.test(k)) return;
+        var v = o.custom[k], ok = v && typeof v === 'object', m = {};
+        ROLES.forEach(function (r) {
+          var p = ok && v[r.id];
+          if (!p || typeof p.x !== 'number' || typeof p.y !== 'number' || !isFinite(p.x) || !isFinite(p.y)) ok = false;
+          else m[r.id] = { x: Math.min(9.7, Math.max(-.7, p.x)), y: Math.min(10, Math.max(.3, p.y)) };
+        });
+        if (ok) { t.custom[k] = m; if (o.edited && o.edited[k]) t.edited[k] = true; n++; }
+      });
+      return n;
+    };
+    return t;
+  }
+
+  var tA = makeTeam('A', false, $('gA'), $('panelA'), 'Права половина');
+  var tB = makeTeam('B', true, $('gB'), $('panelB'), 'Ліва половина');
+  teams = [tA, tB];
+
+  // Формат поля
+  var MODES = [['half', 'Пів поля'], ['full', 'Ціле поле'], ['game', 'Гра'], ['train', 'Тренажер']];
+  MODES.forEach(function (m) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.dataset.mode = m[0]; b.textContent = m[1];
+    b.addEventListener('click', function () { G.mode = m[0]; paintMode(); });
+    $('modeSeg').appendChild(b);
+  });
+  function paintMode() {
+    var full = G.mode === 'full' || G.mode === 'game', game = G.mode === 'game';
+    $('stage').dataset.mode = G.mode;
+    // Ціле поле лежить горизонтально: сітка вертикальна, ліва половина зверху (була), права нижня
+    $('court').setAttribute('viewBox', full ? '-10.5 -10.4 21 11.8' : '-1.4 -1.5 11.8 11.9');
+    $('rotG').setAttribute('transform', full ? 'rotate(-90)' : '');
+    tA.setOrient(full ? 90 : 0);
+    tB.setOrient(full ? -90 : 180);
+    $('gB').setAttribute('display', full ? 'inline' : 'none');
+    $('panelB').hidden = G.mode !== 'full';
+    $('panelA').hidden = game;
+    $('panelG').hidden = !game;
+    $('trailGrp').hidden = !game;
+    if (typeof paintTrail2d === 'function') paintTrail2d();
+    $('ballLayer').setAttribute('display', game ? 'inline' : 'none');
+    if (G.mode === 'train') { tA.phase = 'base'; tA.edit = false; $('AEdit').checked = false; tA.revealed = {}; tA.render(400); } else tA.paintTrain();
+    onGameMode(game);
+    onViewMode();
+    $('netText').setAttribute('display', full ? 'none' : 'inline');
+    document.querySelectorAll('#modeSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === G.mode)); });
+  }
+  function paintGlobal() {
+    var c = $('court');
+    c.classList.toggle('hide-zones', !G.zones);
+    c.classList.toggle('show-diag', G.diag);
+    c.classList.toggle('hide-labels', G.hide);
+    teams.forEach(function (t) { t.render(0); });
+  }
+  $('tTrail').addEventListener('change', function (e) { G.trail = e.target.checked; $('trailMode').hidden = $('trailClear').hidden = !G.trail; if (!G.trail) clearTrail(); else paintTrail2d(); });
+  $('trailMode').addEventListener('change', function (e) { G.trailMode = e.target.value; paintTrail2d(); });
+  $('trailClear').addEventListener('click', clearTrail);
+  [['tLib', 'lib'], ['tZones', 'zones'], ['tDiag', 'diag'], ['tArrows', 'arrows'], ['tHide', 'hide']].forEach(function (p) {
+    $(p[0]).addEventListener('change', function (e) {
+      G[p[1]] = e.target.checked;
+      if (p[1] === 'hide') teams.forEach(function (t) { t.resetReveal(); });
+      paintGlobal();
+    });
+  });
+
+  // ===== Гра: розіграш між лівою і правою командами =====
+  var RB = {}; ROLES.forEach(function (r) { RB[r.id] = r; });
+  var T = [tB, tA], NAMES = ['Ліва', 'Права'];
+  var STR = [{ serve: 50, recv: 50, attack: 50, block: 50, defense: 50 }, { serve: 50, recv: 50, attack: 50, block: 50, defense: 50 }];
+  function mkStats() { var o = { t: [{}, {}], p: [{}, {}] }; return o; }
+  var E = { pickType: null, manual: false, pk: null, pickNow: null, st: mkStats(), trail: [], score: [0, 0], srv: 0, rot: [1, 1], state: 'serve', ctx: {}, busy: false, auto: false, speed: 1, over: false, started: false, log: [], timer: 0, ball: { x: 4.5, y: 9, h: 0 } };
+  var QW = ['відмінно', 'добре', 'погано'];
+  var SIMRNG = null;
+  function rnd() { return SIMRNG ? SIMRNG() : Math.random(); }
+  function wpick(items) {
+    var s = 0; items.forEach(function (i) { s += i.w; });
+    var r = rnd() * s;
+    for (var i = 0; i < items.length; i++) { r -= items[i].w; if (r <= 0) return items[i]; }
+    return items[items.length - 1];
+  }
+  var PLAYER = [{ S: 50, O: 50, H1: 50, H2: 50, M1: 50, M2: 50, L: 50 }, { S: 50, O: 50, H1: 50, H2: 50, M1: 50, M2: 50, L: 50 }];
+  function K(i, key) { return (STR[i][key] - 50) / 50; }
+  // Сила гравця додається до сили команди; ліберо має власну оцінку
+  function Kp(i, key, role, lib) { return Math.max(-1.2, Math.min(1.2, K(i, key) + .5 * (PLAYER[i][lib ? 'L' : role] - 50) / 50)); }
+  function libOf(t, role) { return !!labelFor(RB[role], t.phase, t.lineup[role]).lib; }
+  function ST(i, role, key) { var p = E.st.p[i][role] = E.st.p[i][role] || {}; p[key] = (p[key] || 0) + 1; }
+  function TS(i, key) { E.st.t[i][key] = (E.st.t[i][key] || 0) + 1; }
+  function qrollK(k, dig) { return dig ? qroll(.25 + .2 * k, .45 - .1 * k) : qroll(.45 + .2 * k, .4 - .1 * k); }
+  function qroll(a, b) { var u = rnd(); return u < a ? 0 : u < a + b ? 1 : 2; }
+  function toRot(t, x, y) { return t === tA ? { x: x, y: y } : { x: 9 - x, y: -y }; }
+  // Геометрія падіння: де руки гравця в кінці кидка (вперед до сітки), щоб м'яч зустрів руки, а не п'ятки
+  function diveGeom(t, role, ms) {
+    var p = t.target[role], cy = Math.max(.3, p.y - 2.2), fw = Math.max(.1, p.y - cy - 1.1);
+    return { act: { stage: 'dive', fw: fw, delay: Math.max(0, ms / 1000 - .62) }, ball: P(t, p.x, cy, .38) };
+  }
+  function P(t, x, y, h) { var g = toRot(t, x, y); return { x: g.x, y: g.y, h: h }; }
+  function contact(t, role) { var p = t.target[role]; return P(t, p.x, p.y, 1); }
+  function setBall(x, y, h) {
+    var vx = y, vy = -x; // поле повернуте на -90°
+    $('bShadow').setAttribute('transform', 'translate(' + vx + ' ' + vy + ')');
+    $('bBall').setAttribute('transform', 'translate(' + vx + ' ' + (vy - h * .85) + ')');
+    $('bShadow').setAttribute('display', 'inline'); $('bBall').setAttribute('display', 'inline');
+    E.ball = { x: x, y: y, h: h }; E.ballOn = true;
+    if (G.trail) {
+      var L = E.trail, q = L[L.length - 1];
+      if (!q || Math.hypot(q.x - x, q.y - y, q.h - h) > .06) L.push({ x: x, y: y, h: h, t: performance.now() });
+      if (L.length > 5000) L.shift();
+      paintTrail2d();
+    }
+  }
+  var TRAIL_MS = 1800;
+  function pruneTrail() {
+    if (G.trailMode !== 'short') return;
+    var L = E.trail, now = performance.now();
+    while (L.length && now - L[0].t > TRAIL_MS) L.shift();
+  }
+  function paintTrail2d() {
+    var el2 = $('bTrail');
+    pruneTrail();
+    el2.setAttribute('display', G.trail && E.trail.length > 1 && G.mode === 'game' ? 'inline' : 'none');
+    el2.setAttribute('points', E.trail.map(function (p) { return p.y.toFixed(2) + ',' + (-p.x - p.h * .85).toFixed(2); }).join(' '));
+  }
+  function clearTrail() { E.trail = []; paintTrail2d(); }
+  function scaled(ms) { return reduced ? 1 : ms / E.speed; }
+  function delay(ms) { return new Promise(function (res) { setTimeout(res, scaled(ms)); }); }
+  function fly(to, ms, apex) {
+    var a = { x: E.ball.x, y: E.ball.y, h: E.ball.h }, dur = scaled(ms);
+    return new Promise(function (res) {
+      var t0 = performance.now();
+      (function s(now) {
+        var p = Math.min(1, (now - t0) / dur);
+        setBall(a.x + (to.x - a.x) * p, a.y + (to.y - a.y) * p, a.h + (to.h - a.h) * p + 4 * apex * p * (1 - p));
+        if (p < 1) requestAnimationFrame(s); else res();
+      })(t0);
+    });
+  }
+  function nm(t, role) { return labelFor(RB[role], t.phase, t.lineup[role]).text; }
+  function say(m) { E.log.unshift(m); if (E.log.length > 40) E.log.pop(); paintGame(); }
+  function serverRole(t) { var b = baseLineup(t.rot); return ROLES.filter(function (r) { return b[r.id] === 1; })[0].id; }
+  function go(t, phase, ms) { t.phase = phase; t.revealed = {}; t.render(scaled(ms)); }
+  function defPhase(zone) { return (zone === 2 || zone === 1) ? 'defL' : (zone === 4 || zone === 5) ? 'defR' : 'defC'; }
+  function attackOptions(t) {
+    var gl = gameLineup(baseLineup(t.rot), t.side), o = [];
+    ROLES.forEach(function (r) {
+      var z = gl[r.id];
+      if (z === 4) o.push({ role: r.id, zone: 4, w: .38 });
+      else if (z === 3) o.push({ role: r.id, zone: 3, w: .2 });
+      else if (z === 6) o.push({ role: r.id, zone: 6, w: .14 });
+      else if (z === 2 && r.id === 'O' && SYS === '51') o.push({ role: 'O', zone: 2, w: .28 });
+      else if (z === 1 && r.id === 'O' && SYS === '51') o.push({ role: 'O', zone: 1, w: .2 });
+    });
+    return o;
+  }
+  function setOpts(a) {
+      var opts;
+      if (isSt(E.ctx.setter)) opts = attackOptions(a);
+      else {
+        // Пас робить ЦБ: з першої лінії атакують зони 4 і 2, з другої (ліберо) зони 2, 3, 4
+        var gl2 = gameLineup(baseLineup(a.rot), a.side);
+        var at = function (z) { return ROLES.filter(function (r) { return gl2[r.id] === z; })[0].id; };
+        // Якщо зв’язуючий на першій лінії, у зоні 2 стоїть він сам і атакувати там нікому: б’є діагональний із задньої лінії (зона 1)
+        var two = !isSt(at(2));
+        opts = E.ctx.altSet === 'back'
+          ? [{ role: at(4), zone: 4, w: .4 }, { role: at(3), zone: 3, w: .3 }].concat(two ? [{ role: at(2), zone: 2, w: .3 }] : [{ role: 'O', zone: 1, w: .2 }])
+          : [{ role: at(4), zone: 4, w: .55 }].concat(two ? [{ role: at(2), zone: 2, w: .45 }] : [{ role: 'O', zone: 1, w: .3 }]);
+      }
+      return opts;
+  }
+  // Темпи пасу: швидкість і висота м'яча, час розбігу, вплив на блок
+  var TEMPO = {
+    first: { name: 'перший темп', ms: 650, apex: 2.3, kill: 1.15, stuff: .6, rate: 1000 / 650, note: 'Швидкий пас: блок не встигає зібратися, але потрібен точний прийом.' },
+    second: { name: 'другий темп', ms: 1000, apex: 2.6, kill: 1, stuff: 1, rate: 1, note: 'Стандартний пас на край: нападник і блок діють у звичайному темпі.' },
+    high: { name: 'високий м’яч', ms: 1500, apex: 4.8, kill: .82, stuff: 1.5, rate: 1, note: 'Високий м’яч: блок встигає зібратися, зате нападник має час на розбіг.' },
+    pipe: { name: 'пайп', ms: 1100, apex: 3.2, kill: 1.05, stuff: .7, rate: 1, note: 'Пайп із задньої лінії: нападник заходить ззаду, блок рідко встигає за ним.' },
+    back: { name: 'із задньої лінії', ms: 1250, apex: 3.6, kill: .95, stuff: .7, rate: 1, note: 'Удар із задньої лінії: нападник стрибає з-за лінії атаки.' }
+  };
+  function tempoOpts(o, q) {
+    var z = o.zone;
+    if (z === 3) return q === 0 ? [{ t: 'first', w: .8 }, { t: 'second', w: .2 }] : q === 1 ? [{ t: 'first', w: .5 }, { t: 'second', w: .35 }, { t: 'high', w: .15 }] : [{ t: 'high', w: 1 }];
+    if (z === 6) return q === 0 ? [{ t: 'pipe', w: 1 }] : q === 1 ? [{ t: 'pipe', w: .7 }, { t: 'high', w: .3 }] : [{ t: 'high', w: 1 }];
+    if (z === 1) return q === 2 ? [{ t: 'high', w: 1 }] : [{ t: 'back', w: 1 }];
+    return q === 0 ? [{ t: 'second', w: .75 }, { t: 'high', w: .25 }] : q === 1 ? [{ t: 'second', w: .5 }, { t: 'high', w: .5 }] : [{ t: 'high', w: 1 }];
+  }
+  // Типи ударів: множники до ймовірностей результатів
+  var HIT = {
+    power: { name: 'сильний', kill: 1, stuff: 1, bo: 1, err: 1, dig: 1, soft: 1, killTxt: ': монстр-спайк!', boTxt: ': блок-аут.' },
+    roll: { name: 'накат', kill: .85, stuff: .55, bo: .5, err: .5, dig: 1.15, soft: 1.1, killTxt: ': накат у вільну зону, м’яч лягає за блоком!', boTxt: ': накат по блоку в аут.' },
+    tip: { name: 'обманний', kill: .75, stuff: .15, bo: .2, err: .6, dig: 1.2, soft: .9, killTxt: ': обманний удар, м’яч падає за блоком!', boTxt: ': обманний удар в аут.' },
+    tool: { name: 'по блоку', kill: .5, stuff: .7, bo: 3, err: .8, dig: .9, soft: 1, killTxt: ': б’є по блоку, м’яч вилітає у вільну зону!', boTxt: ': б’є по блоку, м’яч вилітає за поле.' }
+  };
+  function hitOpts(zone, tempo) {
+    if (zone === 6 || zone === 1) return [{ t: 'power', w: .8 }, { t: 'roll', w: .2 }];
+    if (tempo === 'first') return [{ t: 'power', w: .6 }, { t: 'roll', w: .2 }, { t: 'tip', w: .2 }];
+    if (tempo === 'high') return [{ t: 'power', w: .45 }, { t: 'roll', w: .2 }, { t: 'tool', w: .3 }, { t: 'tip', w: .05 }];
+    return [{ t: 'power', w: .6 }, { t: 'roll', w: .2 }, { t: 'tip', w: .1 }, { t: 'tool', w: .1 }];
+  }
+  function point(w, text, kind) {
+    E.score[w]++;
+    if (kind) TS(w, 'p_' + kind);
+    var a = E.score[0], b = E.score[1];
+    say(text + ' Очко: ' + NAMES[w] + ', ' + a + ':' + b + '.');
+    if ((a >= 25 || b >= 25) && Math.abs(a - b) >= 2) {
+      E.over = true; E.state = 'over';
+      say('Партія завершена, перемогла команда «' + NAMES[w] + '» (' + a + ':' + b + ').');
+      return;
+    }
+    if (w !== E.srv) { E.srv = w; E.rot[w] = E.rot[w] % 6 + 1; }
+    E.state = 'serve';
+  }
+
+  var ACT = {
+    serve: async function () {
+      clearActs();
+      if (G.trailMode === 'rally') clearTrail();
+      var s = T[E.srv], r = T[1 - E.srv];
+      s.side = 'serve'; r.side = 'recv'; s.rot = E.rot[E.srv]; r.rot = E.rot[1 - E.srv];
+      go(s, 'srv', 900); go(r, 'recv', 900);
+      var role = serverRole(s), p = s.target[role], jump = rnd() < .3, o = P(s, p.x, p.y + (jump ? 1.3 : 0), 1.3);
+      setBall(o.x, o.y, o.h);
+      E.ctx = { server: role, jump: jump };
+      setAct(E.srv, role, { stage: 'ready', jump: jump });
+      say('«' + NAMES[E.srv] + '» подає (ротація ' + s.rot + '), ' + nm(s, role) + (jump ? ', у стрибку.' : '.'));
+      E.state = 'serveFly';
+      await delay(900);
+    },
+    serveFly: async function () {
+      var s = T[E.srv], r = T[1 - E.srv], rr = 1 - E.srv, u = rnd();
+      // підкидання і удар по м'ячу
+      var sv = E.ctx.server, sj = E.ctx.jump, sp0 = s.target[sv], td = sj ? 1.0 : .3, tossDur = sj ? 1.1 : 1.0;
+      setAct(E.srv, sv, { stage: 'toss', jump: sj, tossDur: tossDur });
+      await fly(P(s, sp0.x, sp0.y - td, sj ? 2.75 : 2.15), tossDur * 1000, sj ? 2.1 : 1.7);
+      setAct(E.srv, sv, { stage: 'hit', jump: sj, tossDur: tossDur });
+      var cands = ROLES.filter(function (x) { return !isSt(x.id); }).map(function (x) {
+        var back = r.target[x.id].y > 4;
+        return { role: x.id, w: x.type === 'H' ? .4 : (x.type === 'M' && back) ? .3 : x.id === 'O' ? .1 : .02 };
+      });
+      var tgt = (E.pickNow && E.pickNow.role) || wpick(cands).role, ks = Kp(E.srv, 'serve', sv, false), eP = .08 * (1 - .6 * ks), aP = .07 * (1 + .8 * ks);
+      ST(E.srv, sv, 'srv');
+      if (u < eP) {
+        ST(E.srv, sv, 'serr');
+        if (rnd() < .5) await fly(P(r, 1 + rnd() * 7, 10.3, 0), 1200, 3.5);
+        else await fly(P(s, 2 + rnd() * 5, .5, .8), 900, 2.5);
+        point(rr, 'Помилка на подачі.', 'err');
+        return;
+      }
+      if (u < eP + aP) {
+        ST(E.srv, sv, 'ace'); ST(rr, tgt, 'recv'); ST(rr, tgt, 'racev');
+        var c = r.target[tgt];
+        await fly(P(r, Math.min(8.2, Math.max(.8, c.x + (c.x < 4.5 ? 1.8 : -1.8))), Math.min(8.2, c.y + 1.6), 0), 1200, 3.5);
+        point(E.srv, 'Ейс!', 'ace');
+        return;
+      }
+      var dv0 = rnd() < .15;
+      var dg0 = diveGeom(r, tgt, 1300);
+      setAct(rr, tgt, dv0 ? dg0.act : { stage: 'plat' });
+      await fly(dv0 ? dg0.ball : contact(r, tgt), 1300, 3.5);
+      var q = qrollK(Kp(rr, 'recv', tgt, libOf(r, tgt)), false);
+      ST(rr, tgt, 'recv'); ST(rr, tgt, 'r' + q);
+      E.ctx = { att: rr, def: E.srv, passer: tgt, qual: q, dive: dv0, fw: dg0.act.fw };
+      say(nm(r, tgt) + ': прийом ' + QW[q] + '.');
+      E.state = 'receive';
+    },
+    receive: async function () {
+      clearActs();
+      var a = T[E.ctx.att], setter = setterRole(baseLineup(a.rot));
+      go(a, 'atk', 800);
+      // Зв’язуючий не може торкнутися м’яча двічі поспіль: якщо він прийняв, пас робить ЦБ
+      if (E.ctx.passer === setter) {
+        var gl = gameLineup(baseLineup(a.rot), a.side);
+        var mbs = ROLES.filter(function (r) { return r.type === 'M'; });
+        var backM = mbs.filter(function (r) { return gl[r.id] === 5; })[0], frontM = mbs.filter(function (r) { return gl[r.id] === 3; })[0];
+        var pickM = rnd() < .6 ? backM : frontM;
+        setter = pickM.id; E.ctx.altSet = pickM === backM ? 'back' : 'front';
+      }
+      E.ctx.setter = setter;
+      var s = a.target[setter];
+      setAct(E.ctx.att, E.ctx.passer, { stage: E.ctx.dive ? 'diveHit' : 'platHit', fw: E.ctx.fw });
+      if (setter !== E.ctx.passer) setAct(E.ctx.att, setter, { stage: 'setWait' });
+      await fly(P(a, s.x, s.y, 2.2), 900, 2.4);
+      E.state = 'set';
+    },
+    set: async function () {
+      var a = T[E.ctx.att], d = T[E.ctx.def];
+      var opts = setOpts(a);
+      var pk = (E.pickNow && opts.filter(function (o) { return o.role === E.pickNow.role && o.zone === E.pickNow.zone; })[0]) || wpick(opts);
+      E.ctx.attacker = pk.role; E.ctx.zone = pk.zone;
+      var dp = defPhase(pk.zone);
+      var tpk = (E.pickNow && E.pickNow.tempo && TEMPO[E.pickNow.tempo]) ? E.pickNow.tempo : wpick(tempoOpts(pk, E.ctx.qual).map(function (o) { return { t: o.t, w: o.w }; })).t, tm = TEMPO[tpk];
+      E.ctx.tempo = tpk;
+      go(a, 'hit', 800); go(d, dp, 800);
+      var p = a.target[pk.role];
+      setAct(E.ctx.att, E.ctx.setter, { stage: 'setPush' });
+      (function () {
+        var role = pk.role, att = E.ctx.att;
+        function startRun() { setAct(att, role, { stage: 'spikeRun' }); V.act[att + ':' + role].k = E.speed * tm.rate; }
+        if (tm.ms > 1000) setTimeout(startRun, scaled(tm.ms - 1000)); else startRun();
+      })();
+      (function () {
+        // ЦБ біля сітки (зона 3) блокує завжди. У лівому і правому захисті додається другий блокуючий з боку удару, у центральному блокує один ЦБ
+        var tx = 9 - p.x, di = E.ctx.def, dgl = gameLineup(baseLineup(d.rot), d.side), front = function (z) { return ROLES.filter(function (r) { return dgl[r.id] === z; })[0]; };
+        var bl = [front(3)];
+        if (dp !== 'defC') bl.push(front(tx > 4.5 ? 2 : 4));
+        bl = bl.filter(Boolean);
+        E.ctx.blockers = bl.map(function (r) { return r.id; });
+        setTimeout(function () { bl.forEach(function (r) { setAct(di, r.id, { stage: 'block', reach: Math.max(0, d.target[r.id].y - .45) }); }); }, scaled(Math.max(0, tm.ms - 350)));
+      })();
+      await fly(P(a, p.x, p.y, 2.8), tm.ms, tm.apex);
+      say((isSt(E.ctx.setter) ? 'Пас на ' : 'Зв прийняв, пас робить ' + nm(a, E.ctx.setter) + ' на ') + nm(a, pk.role) + ' (зона ' + pk.zone + '), ' + tm.name + '. Захист: ' + PH[dp].title.toLowerCase() + '.');
+      E.state = 'attack';
+    },
+    attack: async function () {
+      var c = E.ctx, a = T[c.att], d = T[c.def], who = nm(a, c.attacker), ax = a.target[c.attacker].x;
+      setAct(c.att, c.attacker, { stage: 'spikeHit' });
+      await delay(130);
+      go(a, 'game', 1000); // після удару команда відразу відтягується в ігрову розстановку, а до захисту переходить, коли пас піде на її бік
+      var back = c.zone === 6 || c.zone === 1;
+      var ka = Kp(c.att, 'attack', c.attacker, false), kd = K(c.def, 'defense'), kb = (c.blockers && c.blockers.length) ? c.blockers.reduce(function (z, id) { return z + Kp(c.def, 'block', id, false); }, 0) / c.blockers.length : K(c.def, 'block');
+      ST(c.att, c.attacker, 'att');
+      var tm = TEMPO[c.tempo] || TEMPO.second;
+      var hk = (E.pickNow && E.pickNow.type && HIT[E.pickNow.type]) ? E.pickNow.type : wpick(hitOpts(c.zone, c.tempo).map(function (o) { return { t: o.t, w: o.w }; })).t, hm = HIT[hk];
+      c.hit = hk;
+      var w = { kill: .22 * (1 + .8 * ka) * tm.kill * hm.kill, stuff: (back ? .05 : .12) * (1 + .9 * kb) * tm.stuff * hm.stuff, blockout: .08 * hm.bo, error: .07 * (1 - .5 * ka) * hm.err, soft: .13 * hm.soft, dig: .38 * (1 + .5 * kd) * hm.dig };
+      if (c.qual === 0) { w.kill += .05; w.dig -= .05; }
+      if (c.qual === 2) { w.kill = Math.max(.08, w.kill - .08); w.stuff += .06; w.dig += .02; }
+      var items = Object.keys(w).map(function (k) { return { k: k, w: w[k] }; });
+      var k = (E.pickNow && E.pickNow.res) || wpick(items).k;
+      if (k === 'kill') {
+        await fly(P(d, 1 + rnd() * 7, 5.5 + rnd() * 3, 0), 550, .8);
+        ST(c.att, c.attacker, 'kill');
+        point(c.att, who + hm.killTxt, 'kill');
+      } else if (k === 'stuff') {
+        await fly(P(a, ax, 1 + rnd(), 0), 450, .3);
+        ST(c.att, c.attacker, 'stuffed');
+        var bk = (c.blockers && c.blockers[0]) || ROLES.filter(function (r) { return d.target[r.id].y < 3; }).map(function (r) { return r.id; })[0];
+        if (bk) ST(c.def, bk, 'blk');
+        point(c.def, 'Монстр-блок проти ' + who + '!', 'blk');
+      } else if (k === 'blockout') {
+        await fly(P(d, rnd() < .5 ? -1.3 : 10.3, 1 + rnd() * 4, 0), 700, 1.2);
+        ST(c.att, c.attacker, 'kill'); ST(c.att, c.attacker, 'bo');
+        point(c.att, who + hm.boTxt, 'kill');
+      } else if (k === 'error') {
+        if (rnd() < .5) { await fly(P(a, ax, .3, .8), 500, .4); ST(c.att, c.attacker, 'aerr'); point(c.def, who + ': атака в сітку.', 'err'); }
+        else { await fly(P(d, 1 + rnd() * 7, 10.2, 0), 650, 1.2); ST(c.att, c.attacker, 'aerr'); point(c.def, who + ': атака в аут.', 'err'); }
+      } else {
+        var passer, q, dig = false;
+        if (k === 'soft') {
+          await fly(P(d, 9 - ax, 1.2, 1.2), 500, 1.2);
+          var front = ROLES.filter(function (r) { return d.target[r.id].y < 3 && !isSt(r.id); });
+          passer = (front.length ? front[Math.floor(rnd() * front.length)] : RB.H1).id; q = 2; ST(c.def, passer, 'dig');
+          say('Софт-блок, м’яч у грі, ' + nm(d, passer) + ' підбирає.');
+        } else {
+          var cand = ROLES.filter(function (r) { return hk === 'tip' ? (d.target[r.id].y > 1.8 && d.target[r.id].y < 5.5 && !isSt(r.id) && (c.blockers || []).indexOf(r.id) < 0) : hk === 'roll' ? (d.target[r.id].y > 3.5 && d.target[r.id].y < 7) : d.target[r.id].y > 3.5; });
+          if (!cand.length) cand = ROLES.filter(function (r) { return d.target[r.id].y > 3.5; });
+          if (!cand.length) cand = ROLES.filter(function (r) { return !isSt(r.id); });
+          passer = cand[Math.floor(rnd() * cand.length)].id;
+          var kdp = Kp(c.def, 'defense', passer, libOf(d, passer));
+          var dv1 = rnd() < Math.min(.8, .4 * (1 + .5 * kdp)); dig = dv1;
+          var dg1 = diveGeom(d, passer, 700);
+          setAct(c.def, passer, dv1 ? dg1.act : { stage: 'plat' });
+          await fly(dv1 ? dg1.ball : contact(d, passer), 700, dv1 ? .9 : 1.6);
+          q = qrollK(kdp, true); ST(c.def, passer, 'dig');
+          say((hk === 'power' ? '' : 'Удар: ' + hm.name + '. ') + nm(d, passer) + (dig ? ' у падінні' : '') + ' піднімає м’яч, прийом ' + QW[q] + '.');
+        }
+        E.ctx = { att: c.def, def: c.att, passer: passer, qual: q, dive: dig, fw: dig ? dg1.act.fw : 0 };
+        E.state = 'receive';
+      }
+    },
+    over: async function () {}
+  };
+
+  function step() {
+    if (E.busy || E.over) return Promise.resolve();
+    if (E.manual && E.pk === null && (E.state === 'serveFly' || E.state === 'set' || E.state === 'attack')) { showPick(); return Promise.resolve(); }
+    E.pickNow = E.pk ? E.pk.v : null; E.pk = null; hidePick();
+    H.undo.push(snap()); if (H.undo.length > 300) H.undo.shift(); H.redo = [];
+    E.busy = true; paintGame();
+    return ACT[E.state]().catch(function (e) { console.error(e); }).then(function () { E.busy = false; paintGame(); });
+  }
+  function loop() {
+    if (!E.auto || E.over) return;
+    step().then(function () { if (E.auto && !E.over) E.timer = setTimeout(loop, reduced ? 1 : 450 / E.speed); });
+  }
+  function newGame() {
+    clearTimeout(E.timer);
+    H.undo = []; H.redo = []; E.st = mkStats(); E.pk = null; hidePick();
+    E.score = [0, 0]; E.srv = +$('startSrv').value; E.rot = [+$('startRotL').value, +$('startRotR').value]; E.state = 'serve'; E.over = false; E.ctx = {}; E.log = []; V.act = {};
+    T.forEach(function (t, i) { t.side = 'serve'; t.rot = E.rot[i]; go(t, 'base', 600); });
+    $('bBall').setAttribute('display', 'none'); $('bShadow').setAttribute('display', 'none'); E.ballOn = false; clearTrail();
+    E.started = true;
+    say('Нова партія до 25 очок (різниця 2). Натисніть «Наступна дія».');
+  }
+  // Історія кроків: можна відкотитися назад і знову піти вперед
+  var H = { undo: [], redo: [] };
+  function snap() {
+    return JSON.stringify({ score: E.score, srv: E.srv, rot: E.rot, state: E.state, ctx: E.ctx, over: E.over, log: E.log, ball: E.ball, ballOn: !!E.ballOn, st: E.st,
+      t: T.map(function (t) { return { rot: t.rot, side: t.side, phase: t.phase }; }) });
+  }
+  function restore(js) {
+    var o = JSON.parse(js);
+    E.score = o.score; E.srv = o.srv; E.rot = o.rot; E.state = o.state; E.ctx = o.ctx; E.over = o.over; E.log = o.log; E.st = o.st;
+    V.act = {}; E.pk = null; E.pickType = null; hidePick();
+    o.t.forEach(function (v, i) { var t = T[i]; t.rot = v.rot; t.side = v.side; t.phase = v.phase; t.revealed = {}; t.render(reduced ? 0 : 450); });
+    if (o.ballOn) setBall(o.ball.x, o.ball.y, o.ball.h);
+    else { $('bBall').setAttribute('display', 'none'); $('bShadow').setAttribute('display', 'none'); E.ballOn = false; }
+    E.trail = []; paintTrail2d();
+    paintGame();
+  }
+  var SKEYS = [['serve', 'Подача'], ['recv', 'Прийом'], ['attack', 'Атака'], ['block', 'Блок'], ['defense', 'Захист']];
+  SKEYS.length && [0, 1].forEach(function (i) {
+    var col = document.createElement('div'); col.className = 'str-col';
+    col.innerHTML = '<h3>' + (i === 0 ? 'Ліва команда' : 'Права команда') + '</h3>';
+    SKEYS.forEach(function (k) {
+      var row = document.createElement('label'); row.className = 'str-row';
+      row.innerHTML = '<span>' + k[1] + '</span><input type="range" min="0" max="100" step="5" value="50" aria-label="' + k[1] + ', ' + (i === 0 ? 'ліва' : 'права') + ' команда"><output>50</output>';
+      var inp = row.querySelector('input'), out = row.querySelector('output');
+      inp.addEventListener('input', function () { STR[i][k[0]] = +inp.value; out.textContent = inp.value; });
+      inp.dataset.i = i; inp.dataset.k = k[0];
+      col.appendChild(row);
+    });
+    var ph = document.createElement('h3'); ph.textContent = 'Гравці'; ph.style.marginTop = '10px'; col.appendChild(ph);
+    [['S', 'Зв'], ['O', 'Діаг'], ['H1', 'Дг1'], ['H2', 'Дг2'], ['M1', 'ЦБ1'], ['M2', 'ЦБ2'], ['L', 'Ліберо']].forEach(function (k) {
+      var row = document.createElement('label'); row.className = 'str-row'; row.dataset.rk = k[0];
+      row.innerHTML = '<span>' + k[1] + '</span><input type="range" min="0" max="100" step="5" value="50" aria-label="Клас гравця ' + k[1] + ', ' + (i === 0 ? 'ліва' : 'права') + ' команда"><output>50</output>';
+      var inp = row.querySelector('input'), out = row.querySelector('output');
+      inp.addEventListener('input', function () { PLAYER[i][k[0]] = +inp.value; out.textContent = inp.value; });
+      inp.dataset.i = i; inp.dataset.k = k[0]; inp.dataset.g = 'p';
+      col.appendChild(row);
+    });
+    $('strCols').appendChild(col);
+  });
+  $('strReset').addEventListener('click', function () {
+    document.querySelectorAll('#strCols input').forEach(function (inp) { inp.value = 50; (inp.dataset.g === 'p' ? PLAYER : STR)[+inp.dataset.i][inp.dataset.k] = 50; inp.nextSibling.textContent = '50'; });
+  });
+  function pct(a, b) { return b ? Math.round(100 * a / b) + '%' : '–'; }
+  function paintStats() {
+    if (!$('statBox').open) return;
+    var st = E.st, h = '', tn = ['Ліва', 'Права'];
+    var rows = [['Очки', function (t, i) { return E.score[i]; }],
+      ['з подачі (ейси)', function (t) { return t.p_ace || 0; }], ['з атаки', function (t) { return t.p_kill || 0; }], ['з блоку', function (t) { return t.p_blk || 0; }], ['помилки суперника', function (t) { return t.p_err || 0; }]];
+    h += '<table><thead><tr><th>Команда</th><th>' + tn[0] + '</th><th>' + tn[1] + '</th></tr></thead><tbody>';
+    rows.forEach(function (r) { h += '<tr><td>' + r[0] + '</td><td>' + r[1](st.t[0], 0) + '</td><td>' + r[1](st.t[1], 1) + '</td></tr>'; });
+    function sum(i, key) { var n = 0; Object.keys(st.p[i]).forEach(function (r) { n += st.p[i][r][key] || 0; }); return n; }
+    h += '<tr><td>Прийом відмінний / усього</td><td>' + sum(0, 'r0') + ' / ' + sum(0, 'recv') + ' (' + pct(sum(0, 'r0'), sum(0, 'recv')) + ')</td><td>' + sum(1, 'r0') + ' / ' + sum(1, 'recv') + ' (' + pct(sum(1, 'r0'), sum(1, 'recv')) + ')</td></tr>';
+    h += '<tr><td>Атака: очки / спроби</td><td>' + sum(0, 'kill') + ' / ' + sum(0, 'att') + ' (' + pct(sum(0, 'kill'), sum(0, 'att')) + ')</td><td>' + sum(1, 'kill') + ' / ' + sum(1, 'att') + ' (' + pct(sum(1, 'kill'), sum(1, 'att')) + ')</td></tr>';
+    h += '<tr><td>Подачі / помилки</td><td>' + sum(0, 'srv') + ' / ' + sum(0, 'serr') + '</td><td>' + sum(1, 'srv') + ' / ' + sum(1, 'serr') + '</td></tr></tbody></table>';
+    [0, 1].forEach(function (i) {
+      h += '<h3>Гравці: ' + tn[i] + ' команда</h3><table><thead><tr><th>Гравець</th><th>Подачі</th><th>Ейси</th><th>Пом.</th><th>Атаки</th><th>Очки</th><th>Пом.</th><th>Блоки</th><th>Прийом</th><th>Підйоми</th></tr></thead><tbody>';
+      ROLES.forEach(function (r) {
+        var p = st.p[i][r.id] || {};
+        h += '<tr><td>' + r.short + '</td><td>' + (p.srv || 0) + '</td><td>' + (p.ace || 0) + '</td><td>' + (p.serr || 0) + '</td><td>' + (p.att || 0) + '</td><td>' + (p.kill || 0) + '</td><td>' + (p.aerr || 0) + '</td><td>' + (p.blk || 0) + '</td><td>' + (p.r0 || 0) + '/' + (p.recv || 0) + '</td><td>' + (p.dig || 0) + '</td></tr>';
+      });
+      h += '</tbody></table>';
+    });
+    $('statWrap').innerHTML = h;
+  }
+  $('statBox').addEventListener('toggle', paintStats);
+  var HT = [{}, {}];
+  var HSEL = {};
+  [0, 1].forEach(function (i) { ROLES.forEach(function (r) { HSEL[i + ':' + r.id] = true; }); });
+  function computeHints() {
+    HT = [{}, {}];
+    var c = E.ctx || {}, txt = '', st = E.state;
+    if (G.mode === 'game' && !E.over && E.started) {
+      try {
+        if (st === 'serve') {
+          var s0 = T[E.srv]; HT[E.srv][serverRole(s0)] = 'подає';
+          txt = 'Команда, що подає, стоїть в ігровій розстановці (подача), подавець за лінією. Сусіди не заходять за нього, як у розстановці.';
+        } else if (st === 'serveFly') {
+          HT[E.srv][c.server] = 'подає';
+          var r = T[1 - E.srv];
+          ROLES.forEach(function (x) { HT[1 - E.srv][x.id] = isSt(x.id) ? 'ховається' : 'приймає'; });
+          txt = 'Приймаюча команда в прийомній розстановці: Дг і ліберо приймають, зв’язуюча ховається біля сітки, ЦБ не приймають і готуються до атаки.';
+        } else if (st === 'receive') {
+          HT[c.att][c.passer] = 'прийом';
+          var sr0 = setterRole(baseLineup(T[c.att].rot)); if (c.passer !== sr0) HT[c.att][sr0] = 'на пас';
+          txt = c.qual === 0 ? 'Відмінний прийом: у зв’язуючої є всі варіанти, включно з пайпом і швидким пасом ЦБ.'
+            : c.qual === 1 ? 'Добрий прийом: пас є, але швидкі варіанти обмежені.' : 'Поганий прийом: пас високий на край, блоку легше.';
+          if (isSt(c.passer)) txt += ' Зв’язуюча сама прийняла м’яч, тому пасує ЦБ: двічі поспіль торкатися не можна.';
+        } else if (st === 'set' || st === 'attack') {
+          var a = T[c.att], d = T[c.def];
+          if (st === 'set') {
+            HT[c.att][c.setter] = 'пас';
+            setOpts(a).forEach(function (o) { HT[c.att][o.role] = 'удар з ' + o.zone; });
+            txt = 'Нападники виходять на розбіг. Захист суперника визначається зоною удару: з 2 зони ліва, з 4 права, з 3 і 6 центральна.';
+          } else {
+            HT[c.att][c.attacker] = 'атакує, зона ' + c.zone;
+            ROLES.forEach(function (x) { if (x.id !== c.attacker && x.id !== c.setter) HT[c.att][x.id] = 'страхує'; });
+            HT[c.att][c.setter] = 'страхує';
+            (c.blockers || []).forEach(function (id) { HT[c.def][id] = 'блок'; });
+            ROLES.forEach(function (x) { if (!HT[c.def][x.id]) HT[c.def][x.id] = labelFor(x, d.phase, d.lineup[x.id]).lib ? 'ліберо підбирає' : 'захист'; });
+            txt = (TEMPO[c.tempo] ? TEMPO[c.tempo].note + ' ' : '') + (c.blockers && c.blockers.length > 1 ? 'Двоє блокуючих ставлять блок. ' : 'Один блокуючий. ') + 'Решта захисту стоїть за блоком (' + PH[defPhase(c.zone)].title.toLowerCase() + '), а команда, що атакує, страхує свого нападника.';
+          }
+        }
+      } catch (e) { HT = [{}, {}]; }
+    }
+    [0, 1].forEach(function (i) { Object.keys(HT[i]).forEach(function (id) { if (!HSEL[i + ':' + id]) HT[i][id] = ''; }); });
+    T.forEach(function (t, i) { t.setHints(HT[i]); });
+    var hb = $('gHint'); hb.hidden = !(G.hints && txt); hb.textContent = G.hints ? txt : '';
+  }
+  $('gHints').addEventListener('change', function (e) { G.hints = e.target.checked; $('hintWho').hidden = !G.hints; computeHints(); });
+  (function () {
+    function paintWho() {
+      document.querySelectorAll('#hintWho button[data-k]').forEach(function (b) { b.setAttribute('aria-pressed', String(!!HSEL[b.dataset.k])); });
+      var n = Object.keys(HSEL).filter(function (k) { return HSEL[k]; }).length;
+      document.querySelectorAll('#hwQuick button').forEach(function (b) {
+        var m = b.dataset.q, on = m === 'all' ? n === 12 : m === 'none' ? n === 0 : n === 6 && ROLES.every(function (r) { return HSEL[(m === 'L' ? 0 : 1) + ':' + r.id]; });
+        b.setAttribute('aria-pressed', String(on));
+      });
+    }
+    function setSel(f) { Object.keys(HSEL).forEach(function (k) { HSEL[k] = f(+k[0]); }); paintWho(); computeHints(); }
+    [['all', 'Усі'], ['L', 'Лише ліва'], ['R', 'Лише права'], ['none', 'Ніхто']].forEach(function (q) {
+      var b = document.createElement('button'); b.type = 'button'; b.dataset.q = q[0]; b.textContent = q[1];
+      b.addEventListener('click', function () { setSel(function (i) { return q[0] === 'all' || (q[0] === 'L' && i === 0) || (q[0] === 'R' && i === 1); }); });
+      $('hwQuick').appendChild(b);
+    });
+    [0, 1].forEach(function (i) {
+      var box = $(i ? 'hwR' : 'hwL'), lb = document.createElement('span'); lb.className = 'who'; lb.textContent = NAMES[i] + ':'; box.appendChild(lb);
+      ROLES.forEach(function (r) {
+        var b = document.createElement('button'); b.type = 'button'; b.dataset.k = i + ':' + r.id; b.textContent = r.short; b.title = NAMES[i] + ' · ' + r.name;
+        b.addEventListener('click', function () { HSEL[b.dataset.k] = !HSEL[b.dataset.k]; paintWho(); computeHints(); });
+        box.appendChild(b);
+      });
+    });
+    paintWho();
+  })();
+  function hidePick() { $('gPick').hidden = true; }
+  function showPick() {
+    stopAuto();
+    var box = $('gPick'), bt = $('gPickB'), t0 = $('gPickT'), c = E.ctx, opts = [];
+    bt.innerHTML = '';
+    function add(label, v, primary) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = label; if (primary) b.className = 'main-btn';
+      b.addEventListener('click', function () { var tp = E.pickType; E.pickType = null; if (E.state === 'attack' && tp && tp !== 'rnd') v = Object.assign({ type: tp }, v || {}); E.pk = { v: v }; step(); });
+      bt.appendChild(b);
+    }
+    if (E.state === 'serveFly') {
+      var r = T[1 - E.srv], rgl = gameLineup(baseLineup(r.rot), r.side);
+      t0.textContent = 'Куди подає «' + NAMES[E.srv] + '»? Оберіть гравця, який приймає';
+      ROLES.filter(function (x) { return !isSt(x.id); }).forEach(function (x) { add(nm(r, x.id) + ' · зона ' + rgl[x.id], { role: x.id }); });
+    } else if (E.state === 'set') {
+      var a = T[c.att];
+      t0.textContent = 'Куди пас? Хто атакує у «' + NAMES[c.att] + '»';
+      setOpts(a).forEach(function (o) { tempoOpts(o, c.qual).forEach(function (tp) { add(nm(a, o.role) + ' · зона ' + o.zone + ' · ' + TEMPO[tp.t].name, { role: o.role, zone: o.zone, tempo: tp.t }); }); });
+    } else if (!E.pickType) {
+      t0.textContent = 'Тип удару: ' + nm(T[c.att], c.attacker) + ', зона ' + c.zone + ', ' + (TEMPO[c.tempo] || TEMPO.second).name;
+      Object.keys(HIT).forEach(function (k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = HIT[k].name; b.addEventListener('click', function () { E.pickType = k; showPick(); }); bt.appendChild(b); });
+      var bb = document.createElement('button'); bb.type = 'button'; bb.className = 'main-btn'; bb.textContent = 'Випадково'; bb.addEventListener('click', function () { E.pickType = 'rnd'; showPick(); }); bt.appendChild(bb);
+      box.hidden = false; return;
+    } else {
+      t0.textContent = 'Результат атаки: ' + nm(T[c.att], c.attacker) + ', зона ' + c.zone;
+      [['Спайк: очко', 'kill'], ['Монстр-блок', 'stuff'], ['Блок-аут', 'blockout'], ['Помилка атаки', 'error'], ['Підйом у захисті', 'dig'], ['Софт-блок', 'soft']].forEach(function (x) { add(x[0], { res: x[1] }); });
+    }
+    add('Випадково', null, true);
+    box.hidden = false;
+  }
+  $('gManual').addEventListener('change', function (e) { E.manual = e.target.checked; if (!E.manual) { E.pk = null; hidePick(); } });
+  // ---- Швидка симуляція без анімації для прогнозу ----
+  var LU = {};
+  function lineups(rot, side) { var k = rot + side; if (!LU[k]) { var b = baseLineup(rot); LU[k] = { base: b, gl: gameLineup(b, side) }; } return LU[k]; }
+  function roleAt(gl, z) { return ROLES.filter(function (r) { return gl[r.id] === z; })[0]; }
+  function simOpts(gl, setter, alt) {
+    var o = [];
+    if (isSt(setter)) {
+      ROLES.forEach(function (r) {
+        var z = gl[r.id];
+        if (z === 4) o.push({ role: r.id, zone: 4, w: .38 }); else if (z === 3) o.push({ role: r.id, zone: 3, w: .2 }); else if (z === 6) o.push({ role: r.id, zone: 6, w: .14 });
+        else if (z === 2 && r.id === 'O' && SYS === '51') o.push({ role: 'O', zone: 2, w: .28 }); else if (z === 1 && r.id === 'O' && SYS === '51') o.push({ role: 'O', zone: 1, w: .2 });
+      });
+      return o;
+    }
+    var at = function (z) { return roleAt(gl, z).id; }, two = !isSt(at(2));
+    return alt === 'back' ? [{ role: at(4), zone: 4, w: .4 }, { role: at(3), zone: 3, w: .3 }].concat(two ? [{ role: at(2), zone: 2, w: .3 }] : [{ role: 'O', zone: 1, w: .2 }])
+      : [{ role: at(4), zone: 4, w: .55 }].concat(two ? [{ role: at(2), zone: 2, w: .45 }] : [{ role: 'O', zone: 1, w: .3 }]);
+  }
+  // Один розіграш: повертає переможця (0 ліва, 1 права)
+  function simRally(srv, rot) {
+    var s = srv, r = 1 - srv, bl = lineups(rot[s], 'serve').base, server = ROLES.filter(function (x) { return bl[x.id] === 1; })[0].id;
+    var ks = Kp(s, 'serve', server, false), eP = .08 * (1 - .6 * ks), aP = .07 * (1 + .8 * ks), u = rnd();
+    if (u < eP) return r;
+    if (u < eP + aP) return s;
+    var rl = lineups(rot[r], 'recv').gl;
+    var tgt = wpick(ROLES.filter(function (x) { return !isSt(x.id); }).map(function (x) { return { role: x.id, w: x.type === 'H' ? .4 : (x.type === 'M' && rl[x.id] === 5) ? .3 : x.id === 'O' ? .1 : .02 }; })).role;
+    var q = qrollK(Kp(r, 'recv', tgt, RB[tgt].type === 'M' && rl[tgt] === 5), false), att = r, passer = tgt;
+    for (var n = 0; n < 40; n++) {
+      var lu0 = lineups(rot[att], att === s ? 'serve' : 'recv'), gl = lu0.gl, setter = setterRole(lu0.base), alt = null;
+      if (passer === setter) {
+        var mb = ROLES.filter(function (x) { return x.type === 'M'; }), bm = mb.filter(function (x) { return gl[x.id] === 5; })[0], fm = mb.filter(function (x) { return gl[x.id] === 3; })[0];
+        var pm = rnd() < .6 ? bm : fm; setter = pm.id; alt = pm === bm ? 'back' : 'front';
+      }
+      var pk = wpick(simOpts(gl, setter, alt)), tempo = wpick(tempoOpts(pk, q)).t, tm = TEMPO[tempo], hk = wpick(hitOpts(pk.zone, tempo)).t, hm = HIT[hk];
+      var def = 1 - att, dgl = lineups(rot[def], def === s ? 'serve' : 'recv').gl;
+      var bz = [3]; if (defPhase(pk.zone) !== 'defC') bz.push((pk.zone === 4) ? 2 : 4);
+      var bls = bz.map(function (z) { return roleAt(dgl, z); }).filter(Boolean);
+      var ka = Kp(att, 'attack', pk.role, false), kd = K(def, 'defense'), kb = bls.reduce(function (z, x) { return z + Kp(def, 'block', x.id, false); }, 0) / (bls.length || 1);
+      var back = pk.zone === 6 || pk.zone === 1;
+      var w = { kill: .22 * (1 + .8 * ka) * tm.kill * hm.kill, stuff: (back ? .05 : .12) * (1 + .9 * kb) * tm.stuff * hm.stuff, blockout: .08 * hm.bo, error: .07 * (1 - .5 * ka) * hm.err, soft: .13 * hm.soft, dig: .38 * (1 + .5 * kd) * hm.dig };
+      if (q === 0) { w.kill += .05; w.dig -= .05; }
+      if (q === 2) { w.kill = Math.max(.08, w.kill - .08); w.stuff += .06; w.dig += .02; }
+      var k = wpick(Object.keys(w).map(function (x) { return { k: x, w: w[x] }; })).k;
+      if (k === 'kill' || k === 'blockout') return att;
+      if (k === 'stuff' || k === 'error') return def;
+      var pid, lib = false;
+      if (k === 'soft') { var fr = ROLES.filter(function (x) { return dgl[x.id] >= 2 && dgl[x.id] <= 4 && !isSt(x.id); }); pid = (fr.length ? fr[Math.floor(rnd() * fr.length)] : RB.H1).id; q = 2; }
+      else { var bk = ROLES.filter(function (x) { return dgl[x.id] === 5 || dgl[x.id] === 6 || dgl[x.id] === 1; }); var pr = bk[Math.floor(rnd() * bk.length)]; pid = pr.id; lib = pr.type === 'M'; q = qrollK(Kp(def, 'defense', pid, lib), true); }
+      att = def; passer = pid;
+    }
+    return rnd() < .5 ? 0 : 1;
+  }
+  function simSet(score, srv, rot) {
+    var sc = score.slice(), rt = rot.slice(), sv = srv;
+    for (var g = 0; g < 400; g++) {
+      var w = simRally(sv, rt); sc[w]++;
+      if ((sc[0] >= 25 || sc[1] >= 25) && Math.abs(sc[0] - sc[1]) >= 2) return sc[0] > sc[1] ? 0 : 1;
+      if (w !== sv) { sv = w; rt[w] = rt[w] % 6 + 1; }
+    }
+    return sc[0] >= sc[1] ? 0 : 1;
+  }
+  function seeded(seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function winProb(score, srv, rot, N, seed) {
+    SIMRNG = seeded(seed || 12345); var w = 0;
+    try { for (var i = 0; i < N; i++) if (simSet(score, srv, rot) === 0) w++; } finally { SIMRNG = null; }
+    return w / N;
+  }
+  function rallyProb(team, myRot, serving, N, seed) {
+    SIMRNG = seeded(seed || 777); var win = 0;
+    try { for (var i = 0; i < N; i++) { var rot = [0, 0]; rot[team] = myRot; rot[1 - team] = 1 + Math.floor(rnd() * 6); if (simRally(serving ? team : 1 - team, rot) === team) win++; } } finally { SIMRNG = null; }
+    return win / N;
+  }
+  function pc(x) { return (100 * x).toFixed(0) + '%'; }
+  function runPrediction() {
+    var out = $('predOut'), team = +$('predTeam').value, N = 700, h = '';
+    var cur = winProb(E.score, E.srv, E.rot, N, 1);
+    h += '<h3 class="pred-h">Шанси на перемогу в партії (з поточного рахунку ' + E.score[0] + ':' + E.score[1] + ')</h3>';
+    h += '<div class="pbar"><span class="l" style="width:' + Math.max(8, 100 * cur) + '%">Ліва ' + pc(cur) + '</span><span class="r" style="width:' + Math.max(8, 100 * (1 - cur)) + '%">Права ' + pc(1 - cur) + '</span></div>';
+    // ротації обох команд
+    h += '<h3 class="pred-h">Сила ротацій: шанс виграти розіграш</h3><table><thead><tr><th>Ротація</th><th>Ліва подає</th><th>Ліва приймає</th><th>Права подає</th><th>Права приймає</th></tr></thead><tbody>';
+    var tab = [[], []];
+    for (var t = 0; t < 2; t++) for (var r = 1; r <= 6; r++) tab[t][r] = [rallyProb(t, r, true, 600, 10 + r), rallyProb(t, r, false, 600, 20 + r)];
+    for (var r2 = 1; r2 <= 6; r2++) h += '<tr><td>' + r2 + '</td><td>' + pc(tab[0][r2][0]) + '</td><td>' + pc(tab[0][r2][1]) + '</td><td>' + pc(tab[1][r2][0]) + '</td><td>' + pc(tab[1][r2][1]) + '</td></tr>';
+    h += '</tbody></table>';
+    [0, 1].forEach(function (t2) {
+      var best = 1, worst = 1, avg = function (r) { return (tab[t2][r][0] + tab[t2][r][1]) / 2; };
+      for (var r3 = 2; r3 <= 6; r3++) { if (avg(r3) > avg(best)) best = r3; if (avg(r3) < avg(worst)) worst = r3; }
+      h += '<p>' + NAMES[t2] + ': найсильніша ротація <span class="pred-good">' + best + '</span> (' + pc(avg(best)) + '), найслабша <span class="pred-bad">' + worst + '</span> (' + pc(avg(worst)) + ').</p>';
+    });
+    // стартова ротація
+    h += '<h3 class="pred-h">Яку ротацію обрати на старт (' + NAMES[team].toLowerCase() + ' команда)</h3><table><thead><tr><th>Стартова ротація</th><th>Шанс виграти партію</th></tr></thead><tbody>';
+    var bestR = 1, bestP = -1;
+    for (var sr = 1; sr <= 6; sr++) {
+      var rt = E.rot.slice(); rt[team] = sr; var pw = winProb([0, 0], +$('startSrv').value, [+$('startRotL').value, +$('startRotR').value].map(function (v, i) { return i === team ? sr : v; }), 400, 5 + sr);
+      var mine = team === 0 ? pw : 1 - pw; if (mine > bestP) { bestP = mine; bestR = sr; }
+      h += '<tr><td>' + sr + '</td><td>' + pc(mine) + '</td></tr>';
+    }
+    h += '</tbody></table><p>Найвигідніший старт: ротація <span class="pred-good">' + bestR + '</span> (' + pc(bestP) + ').</p>';
+    // чутливість: що поліпшити
+    var rows = [];
+    var bb = team === 0 ? cur : 1 - cur;
+    function probe2(label, obj, key) {
+      var old = obj[key]; if (old >= 100) return; obj[key] = Math.min(100, old + 10);
+      var p = winProb(E.score, E.srv, E.rot, N, 1); obj[key] = old;
+      rows.push([label, (team === 0 ? p : 1 - p) - bb]);
+    }
+    SKEYS.forEach(function (k) { probe2('Команда: ' + k[1].toLowerCase(), STR[team], k[0]); });
+    [['S', 'Зв'], ['O', 'Діаг'], ['H1', 'Дг1'], ['H2', 'Дг2'], ['M1', 'ЦБ1'], ['M2', 'ЦБ2'], ['L', 'Ліберо']].forEach(function (k) { probe2('Гравець: ' + (RB[k[0]] ? RB[k[0]].short : k[1]), PLAYER[team], k[0]); });
+    rows.sort(function (a, b) { return b[1] - a[1]; });
+    h += '<h3 class="pred-h">Що поліпшити: приріст шансів від +10 до оцінки (' + NAMES[team].toLowerCase() + ' команда, зараз ' + pc(bb) + ')</h3><table><thead><tr><th>Що</th><th>Приріст</th></tr></thead><tbody>';
+    rows.forEach(function (r4) { h += '<tr><td>' + r4[0] + '</td><td>' + (r4[1] >= 0 ? '+' : '') + (100 * r4[1]).toFixed(1) + ' п.п.</td></tr>'; });
+    h += '</tbody></table>';
+    if (rows.length) h += '<p>Найвигідніше вкластися в «<span class="pred-good">' + rows[0][0].toLowerCase() + '</span>»: +10 до оцінки дає ' + (100 * rows[0][1]).toFixed(1) + ' п.п. до шансів. Дрібні відмінності в межах 1–2 п.п. це похибка симуляції.</p>';
+    out.innerHTML = h;
+  }
+  $('predRun').addEventListener('click', function () {
+    var b = $('predRun'); b.disabled = true; b.textContent = 'Рахую…';
+    setTimeout(function () { try { runPrediction(); } finally { b.disabled = false; b.textContent = 'Порахувати прогноз'; } }, 30);
+  });
+  [1, 2, 3, 4, 5, 6].forEach(function (n) { ['startRotL', 'startRotR'].forEach(function (id) { var o = document.createElement('option'); o.value = n; o.textContent = n; $(id).appendChild(o); }); });
+  ['startRotL', 'startRotR', 'startSrv'].forEach(function (id) { $(id).addEventListener('change', function () { if (!E.busy) newGame(); }); });
+  function stopAuto() { E.auto = false; $('gAuto').checked = false; clearTimeout(E.timer); }
+  function stepBack() { if (E.busy || !H.undo.length) return; stopAuto(); H.redo.push(snap()); restore(H.undo.pop()); }
+  function stepFwd() { if (E.busy || !H.redo.length) return; stopAuto(); H.undo.push(snap()); restore(H.redo.pop()); }
+  function paintGame() {
+    $('gL').textContent = E.score[0]; $('gR').textContent = E.score[1];
+    $('rL').textContent = 'Ротація ' + E.rot[0] + (E.srv === 0 ? ' · подає' : '');
+    $('rR').textContent = 'Ротація ' + E.rot[1] + (E.srv === 1 ? ' · подає' : '');
+    $('gNow').textContent = E.log[0] || '';
+    var ol = $('gLog'); ol.innerHTML = '';
+    E.log.slice(1, 8).forEach(function (m) { var li = document.createElement('li'); li.textContent = m; ol.appendChild(li); });
+    $('gNext').disabled = E.busy || E.over; $('gNew').disabled = E.busy;
+    paintStats(); computeHints();
+    $('gBack').disabled = E.busy || !H.undo.length; $('gFwd').disabled = E.busy || !H.redo.length;
+    document.querySelectorAll('#gSpeed button').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.sp === E.speed)); });
+  }
+  function onGameMode(game) {
+    if (game && !E.started) newGame();
+    if (!game) { E.auto = false; $('gAuto').checked = false; clearTimeout(E.timer); }
+    paintGame();
+  }
+  [[.5, '×0,5'], [1, '×1'], [2, '×2']].forEach(function (s) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.dataset.sp = s[0]; b.textContent = s[1];
+    b.addEventListener('click', function () { E.speed = s[0]; paintGame(); });
+    $('gSpeed').appendChild(b);
+  });
+  $('gNext').addEventListener('click', function () { step(); });
+  $('gBack').addEventListener('click', stepBack);
+  $('gFwd').addEventListener('click', stepFwd);
+  $('gNew').addEventListener('click', function () { newGame(); });
+  $('gAuto').addEventListener('change', function (e) { E.auto = e.target.checked; if (E.auto) loop(); else clearTimeout(E.timer); });
+
+
+  // ===== 3D-вигляд: манекени на canvas, без бібліотек =====
+  var cv = $('c3d'), cx = cv.getContext('2d');
+  var V = { ox: 0, fp: null, watch: 'auto', fpYb: 0, look: { y: 0, p: 0 }, act: {}, on: false, cam: { az: 0, el: .5, r: 21 }, tgt: { az: 0, el: .5, r: 21 }, pl: [{}, {}], last: 0, n: 0, col: {}, spin: 0 };
+  var CAMS = [['Збоку', 0, .5, 21], ['Позаду правої', Math.PI / 2, .45, 17], ['Позаду лівої', -Math.PI / 2, .45, 17], ['Зверху', 0, 1.5, 19]];
+  var SKIN = '#d6b595', SHORTS = '#1c2733', SHOE = '#f3f5f7';
+  var LTH = .46, LSH = .46, TOR = .52, UAR = .3, FAR = .28;
+  function readColors() {
+    var cs = getComputedStyle(document.documentElement);
+    ['--court', '--free', '--lines', '--c-a', '--c-h', '--c-m', '--c-l', '--on-lib', '--ink', '--trail'].forEach(function (k) { V.col[k] = cs.getPropertyValue(k).trim(); });
+  }
+  function setupCam(w, h) {
+    var c = V.cam, ce = Math.cos(c.el), C, f, l, tn = .364;
+    if (V.fpC) {
+      C = V.fpC; var cp = Math.cos(V.fpP);
+      f = [Math.sin(V.fpY) * cp, Math.sin(V.fpP), Math.cos(V.fpY) * cp]; tn = .6;
+    } else {
+      C = [V.ox + c.r * ce * Math.sin(c.az), 1 + c.r * Math.sin(c.el), c.r * ce * Math.cos(c.az)];
+      f = [V.ox - C[0], 1 - C[1], -C[2]]; l = Math.hypot(f[0], f[1], f[2]); f = [f[0] / l, f[1] / l, f[2] / l];
+    }
+    var rt = [-f[2], 0, f[0]], rl = Math.hypot(rt[0], rt[2]) || 1; rt = [rt[0] / rl, 0, rt[2] / rl];
+    var up = [rt[1] * f[2] - rt[2] * f[1], rt[2] * f[0] - rt[0] * f[2], rt[0] * f[1] - rt[1] * f[0]];
+    V.C = C; V.f = f; V.rt = rt; V.up = up; V.F = (h / 2) / tn; V.cx = w / 2; V.cy = h / 2;
+  }
+  function pr(p) {
+    var vx = p[0] - V.C[0], vy = p[1] - V.C[1], vz = p[2] - V.C[2];
+    var z = vx * V.f[0] + vy * V.f[1] + vz * V.f[2];
+    var x = vx * V.rt[0] + vy * V.rt[1] + vz * V.rt[2];
+    var y = vx * V.up[0] + vy * V.up[1] + vz * V.up[2];
+    var k = V.F / Math.max(.05, z);
+    return { x: V.cx + x * k, y: V.cy - y * k, z: z, s: k };
+  }
+  var NEARZ = .3;
+  function zOf(p) { return (p[0] - V.C[0]) * V.f[0] + (p[1] - V.C[1]) * V.f[1] + (p[2] - V.C[2]) * V.f[2]; }
+  function clipPoly(pts) {
+    var out = [];
+    for (var i = 0; i < pts.length; i++) {
+      var a = pts[i], b = pts[(i + 1) % pts.length], za = zOf(a), zb = zOf(b);
+      if (za >= NEARZ) out.push(a);
+      if ((za >= NEARZ) !== (zb >= NEARZ)) {
+        var t = (NEARZ - za) / (zb - za);
+        out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]);
+      }
+    }
+    return out;
+  }
+  function poly(pts, fill, stroke, lw) {
+    var c = clipPoly(pts);
+    if (c.length < 3) return;
+    var q = c.map(pr);
+    cx.beginPath(); cx.moveTo(q[0].x, q[0].y);
+    for (var i = 1; i < q.length; i++) cx.lineTo(q[i].x, q[i].y);
+    cx.closePath();
+    if (fill) { cx.fillStyle = fill; cx.fill(); }
+    if (stroke) { cx.strokeStyle = stroke; cx.lineWidth = lw; cx.stroke(); }
+  }
+  function line3(a, b, col, wm) {
+    var za = zOf(a), zb = zOf(b);
+    if (za < NEARZ && zb < NEARZ) return;
+    if (za < NEARZ || zb < NEARZ) {
+      var t = (NEARZ - za) / (zb - za), m = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+      if (za < NEARZ) a = m; else b = m;
+    }
+    var pa = pr(a), pb = pr(b), dx = pb.x - pa.x, dy = pb.y - pa.y, L = Math.hypot(dx, dy);
+    if (L < .01) return;
+    // ширина з перспективою: кожен кінець має власний масштаб, тож лінія плавно звужується вдалину
+    var ha = Math.max(.5, Math.min(12, wm * pa.s)) / 2, hb = Math.max(.5, Math.min(12, wm * pb.s)) / 2;
+    var nx = -dy / L, ny = dx / L;
+    cx.fillStyle = col;
+    cx.beginPath();
+    cx.moveTo(pa.x + nx * ha, pa.y + ny * ha); cx.lineTo(pb.x + nx * hb, pb.y + ny * hb);
+    cx.lineTo(pb.x - nx * hb, pb.y - ny * hb); cx.lineTo(pa.x - nx * ha, pa.y - ny * ha);
+    cx.closePath(); cx.fill();
+  }
+  function shadow(x, z, r, a) {
+    var pts = [];
+    for (var i = 0; i < 10; i++) pts.push([x + r * Math.cos(i * .6283), .01, z + r * Math.sin(i * .6283)]);
+    poly(pts, 'rgba(0,0,0,' + a + ')');
+  }
+  function worldOf(i, x, y) { var g = toRot(T[i], x, y); return { x: g.y, z: 4.5 - g.x }; }
+
+  function stepPlayer(i, role, dt, act, now) {
+    var t = T[i], p = t.pos[role], w = worldOf(i, p.x, p.y);
+    var s = V.pl[i][role];
+    if (!s) s = V.pl[i][role] = { x: w.x, z: w.z, yaw: i === 1 ? -Math.PI / 2 : Math.PI / 2, ph: Math.random() * 6, sp: 0, bx: w.x, bz: w.z, ox: 0, oz: 0 };
+    var vx = (w.x - s.bx) / dt, vz = (w.z - s.bz) / dt, sp = Math.hypot(vx, vz);
+    if (sp > 16) { sp = 0; vx = vz = 0; }
+    s.sp += (sp - s.sp) * Math.min(1, dt * 10);
+    if (act && act.jump) {
+      var tq = (now - act.t0) / 1000 * (act.k || 1);
+      if (act.stage === 'toss' && tq > .1 && tq < act.tossDur - .35) s.sp = 3.2;
+      else if (act.stage === 'hit' && tq < .15) s.sp = 2;
+      else s.sp = 0;
+    }
+    if (act && act.stage === 'spikeRun') { var tr = (now - act.t0) / 1000 * (act.k || 1); s.sp = tr < .65 ? 3.4 : 0; }
+    else if (act && act.stage === 'spikeHit') { if ((now - act.t0) / 1000 * (act.k || 1) < .5) s.sp = 0; }
+    else if (act && act.stage === 'block') { if ((now - act.t0) / 1000 * (act.k || 1) < 1.3) s.sp = 0; }
+    s.bx = w.x; s.bz = w.z; s.x = w.x + s.ox; s.z = w.z + s.oz; s.vx = vx; s.vz = vz;
+    var ty;
+    if (act && act.stage !== 'done' && !FACE[act.stage]) ty = i === 1 ? -Math.PI / 2 : Math.PI / 2;
+    else if (G.mode === 'game' && E.ballOn && E.srv === i && (E.state === 'serve' || E.state === 'serveFly') && (i === 0 ? ballWorld()[0] < 0 : ballWorld()[0] > 0)) ty = i === 1 ? -Math.PI / 2 : Math.PI / 2; // подаюча команда дивиться на суперника, поки м'яч на її боці
+    else if (G.mode === 'game' && E.ballOn) { var b = ballWorld(); ty = Math.atan2(b[0] - s.x, b[2] - s.z); }
+    else if (s.sp > 1.2) ty = Math.atan2(vx, vz);
+    else ty = i === 1 ? -Math.PI / 2 : Math.PI / 2;
+    var d = ty - s.yaw; d = Math.atan2(Math.sin(d), Math.cos(d));
+    s.yaw += d * Math.min(1, dt * 9);
+    s.ph += s.sp * dt * 2;
+    return s;
+  }
+  // Розходження гравців однієї команди: хто біжить, той обходить стоячого збоку
+  function separate(dt) {
+    var R = .8;
+    for (var i = 0; i < 2; i++) {
+      var L = ROLES.map(function (r) { return V.pl[i][r.id]; }).filter(Boolean);
+      L.forEach(function (a) { var d = Math.min(1, dt * 2.5); a.ox -= a.ox * d; a.oz -= a.oz * d; });
+      for (var j = 0; j < L.length; j++) for (var k = j + 1; k < L.length; k++) {
+        var a = L[j], b = L[k], dx = a.x - b.x, dz = a.z - b.z, d = Math.hypot(dx, dz);
+        if (d >= R) continue;
+        if (d < .001) { dx = .01; dz = 0; d = .01; }
+        var ux = dx / d, uz = dz / d, pen = R - d;
+        var wa = a.sp + .3, wb = b.sp + .3, sa = wa / (wa + wb), sb = 1 - sa;
+        var mv = sa >= sb ? a : b, rx = mv === a ? ux : -ux, rz = mv === a ? uz : -uz;
+        var cr = rx * (mv.vz || 0) - rz * (mv.vx || 0), sg = cr >= 0 ? 1 : -1, tx = -rz * sg, tz = rx * sg;
+        a.ox += (ux * sa + tx * (mv === a ? .8 : 0) * sa) * pen; a.oz += (uz * sa + tz * (mv === a ? .8 : 0) * sa) * pen;
+        b.ox -= (ux * sb - tx * (mv === b ? .8 : 0) * sb) * pen; b.oz -= (uz * sb - tz * (mv === b ? .8 : 0) * sb) * pen;
+      }
+      L.forEach(function (a) { var m = Math.hypot(a.ox, a.oz); if (m > 1.2) { a.ox *= 1.2 / m; a.oz *= 1.2 / m; } a.x = a.bx + a.ox; a.z = a.bz + a.oz; });
+    }
+  }
+  var FACE = { dive: 1, diveHit: 1, plat: 1, platHit: 1, setWait: 1, setPush: 1 };
+  function ballWorld() { return [E.ball.y, E.ball.h + .13, 4.5 - E.ball.x]; }
+
+  // Скелет манекена: список відрізків і голова
+  function skeleton(s, jersey, A) {
+    var run = Math.min(1, s.sp / 3.5), idle = 1 - run, ph = s.ph;
+    var lean = idle * .3 + run * .28;
+    var th = [], kn = [], ar = [], el = [];
+    for (var k = 0; k < 2; k++) {
+      var o = k ? Math.PI : 0;
+      th[k] = idle * -.55 + run * .95 * Math.sin(ph + o);
+      kn[k] = idle * .95 + run * (.25 + .95 * Math.max(0, Math.sin(ph + o + 1.7)));
+      ar[k] = idle * -.55 + run * -.95 * Math.sin(ph + o + Math.PI);
+      el[k] = idle * -.95 + run * -1.15;
+    }
+    if (A) { if (A.th) { th = A.th; kn = A.kn; } if (A.ar) { ar = A.ar; el = A.el; lean = A.lean; } if (A.tuck) { th = [-.45, -.45]; kn = [1.05, 1.05]; } }
+    var hy = 0;
+    for (k = 0; k < 2; k++) hy = Math.max(hy, LTH * Math.cos(th[k]) + LSH * Math.cos(th[k] + kn[k]));
+    hy += .06 + (A ? A.jy : 0);
+    var sy = Math.sin(s.yaw), cyw = Math.cos(s.yaw);
+    var fw = A ? A.fwd : 0;
+    function W(lx, ly, lz) { return [s.x + cyw * lx + sy * (lz + fw), hy + ly, s.z - sy * lx + cyw * (lz + fw)]; }
+    var tdir = [0, Math.cos(lean), Math.sin(lean)];
+    var sh = [0, TOR * tdir[1], TOR * tdir[2]], hd = [0, (TOR + .26) * tdir[1], (TOR + .26) * tdir[2]];
+    var segs = [];
+    segs.push({ a: W(0, 0, 0), b: W(sh[0], sh[1], sh[2]), w: .36, c: jersey });
+    segs.push({ a: W(0, .02, 0), b: W(0, -.14, 0), w: .34, c: SHORTS });
+    for (k = 0; k < 2; k++) {
+      var sd = k ? 1 : -1;
+      var hip = [sd * .1, 0, 0];
+      var knee = [hip[0], hip[1] - LTH * Math.cos(th[k]), hip[2] - LTH * Math.sin(th[k])];
+      var ank = [knee[0], knee[1] - LSH * Math.cos(th[k] + kn[k]), knee[2] - LSH * Math.sin(th[k] + kn[k])];
+      segs.push({ a: W(hip[0], hip[1], hip[2]), b: W(knee[0], knee[1], knee[2]), w: .14, c: SKIN });
+      segs.push({ a: W(knee[0], knee[1], knee[2]), b: W(ank[0], ank[1], ank[2]), w: .11, c: SKIN });
+      segs.push({ a: W(ank[0], ank[1], ank[2]), b: W(ank[0], ank[1] - .03, ank[2] + .17), w: .1, c: SHOE });
+      var shd = [sd * .21, sh[1] - .04, sh[2]];
+      var elb = [shd[0] + sd * .05, shd[1] - UAR * Math.cos(ar[k]), shd[2] - UAR * Math.sin(ar[k])];
+      var wr = [elb[0], elb[1] - FAR * Math.cos(ar[k] + el[k]), elb[2] - FAR * Math.sin(ar[k] + el[k])];
+      segs.push({ a: W(shd[0], shd[1], shd[2]), b: W(elb[0], elb[1], elb[2]), w: .09, c: SKIN });
+      segs.push({ a: W(elb[0], elb[1], elb[2]), b: W(wr[0], wr[1], wr[2]), w: .08, c: SKIN });
+    }
+    return { segs: segs, head: W(hd[0], hd[1], hd[2]), top: W(hd[0], hd[1] + .3, hd[2]), ox: sy * fw, oz: cyw * fw };
+  }
+
+  // Дії гравців: подача (підкидання, розбіг, стрибок, удар)
+  function ease(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function setAct(i, role, o) { o.t0 = performance.now(); o.k = E.speed; V.act[i + ':' + role] = o; }
+  function clearActs() {
+    var now = performance.now();
+    Object.keys(V.act).forEach(function (k) {
+      var a = V.act[k], f = a.stage === 'done' ? 0 : actPose(a, now).fwd;
+      V.act[k] = { stage: 'done', t0: now, off0: f, k: 1 };
+    });
+  }
+  function actPose(a, now) {
+    var tt = (now - a.t0) / 1000 * (a.k || 1);
+    var R = { fwd: 0, jy: 0, lean: 0, ar: null, el: null, tuck: false, th: null, kn: null };
+    if (a.stage === 'plat' || a.stage === 'platHit' || a.stage === 'setWait' || a.stage === 'setPush') {
+      var I = { ar: -.55, el: -.95, lean: .3, th: -.55, kn: .95 }, T0, rl2 = 0, w;
+      if (a.stage === 'plat') { w = ease(tt / .5); T0 = { ar: -1.05, el: -.05, lean: .55, th: -.8, kn: 1.5 }; }
+      else if (a.stage === 'platHit') { w = ease(tt / .25); I = { ar: -1.05, el: -.05, lean: .55, th: -.8, kn: 1.5 }; T0 = { ar: -1.5, el: -.05, lean: .4, th: -.5, kn: .8 }; rl2 = ease((tt - .7) / .6); }
+      else if (a.stage === 'setWait') { w = ease(tt / .45); T0 = { ar: -2, el: -1.2, lean: .15, th: -.7, kn: 1.2 }; }
+      else { w = ease(tt / .2); I = { ar: -2, el: -1.2, lean: .15, th: -.7, kn: 1.2 }; T0 = { ar: -2.9, el: -.15, lean: .05, th: -.2, kn: .3 }; rl2 = ease((tt - .6) / .6); }
+      var Z = { ar: 0, el: 0, lean: 0, th: 0, kn: 0 };
+      ['ar', 'el', 'lean', 'th', 'kn'].forEach(function (q) {
+        var base = a.stage === 'plat' || a.stage === 'setWait' ? { ar: -.55, el: -.95, lean: .3, th: -.55, kn: .95 }[q] : I[q];
+        var v = lerp(base, T0[q], w); Z[q] = lerp(v, { ar: -.55, el: -.95, lean: .3, th: -.55, kn: .95 }[q], rl2);
+      });
+      R.ar = [Z.ar, Z.ar]; R.el = [Z.el, Z.el]; R.lean = Z.lean; R.th = [Z.th, Z.th]; R.kn = [Z.kn, Z.kn];
+      return R;
+    }
+    if (a.stage === 'dive' && tt < (a.delay || 0)) return actPose({ stage: 'plat', t0: a.t0, k: a.k }, now);
+    if (a.stage === 'dive' || a.stage === 'diveHit') {
+      if (a.stage === 'dive') tt -= (a.delay || 0);
+      var dd = a.stage === 'dive' ? ease(tt / .6) : 1, gu = a.stage === 'diveHit' ? ease((tt - .55) / .7) : 0, f2 = dd * (1 - gu);
+      var arm = a.stage === 'diveHit' ? lerp(-1.57, -1.1, ease(tt / .25)) : -1.57;
+      R.fwd = (a.fw === undefined ? 1.1 : a.fw) * f2; R.jy = -.2 * f2; R.lean = lerp(.3, 1.45, f2);
+      R.th = [lerp(-.55, .9, f2), lerp(-.55, .9, f2)]; R.kn = [lerp(.95, .3, f2), lerp(.95, .3, f2)];
+      var aa = lerp(-.55, arm, f2), ee = lerp(-.95, 0, f2);
+      R.ar = [aa, aa]; R.el = [ee, ee];
+      return R;
+    }
+    if (a.stage === 'spikeRun') {
+      var ph0 = tt * 9, run = tt < .65 ? 1 : 0;
+      R.fwd = -2 * (1 - ease(tt / .65)); R.fwd = lerp(-2, 0, Math.min(1, tt / .65));
+      if (tt < .5) { R.ar = [-.5 * Math.sin(ph0), .5 * Math.sin(ph0)]; R.el = [-1.1, -1.1]; R.lean = .3; }
+      else {
+        var u2 = ease((tt - .5) / .4);
+        R.ar = [lerp(-.5, -2.2, u2), lerp(0, -2.6, u2)]; R.el = [lerp(-1.1, 2.4, u2), lerp(-1.1, -.3, u2)]; R.lean = lerp(.3, -.1, u2);
+      }
+      var jy = tt < .65 ? 0 : tt < .95 ? .62 * ease((tt - .65) / .3) : tt < 1.4 ? .62 - .04 * (tt - .95) : .6 * (1 - ease((tt - 1.4) / .3));
+      R.jy = jy; if (jy > .02) R.tuck = true;
+      return R;
+    }
+    if (a.stage === 'spikeHit') {
+      var h1 = ease(tt / .13), h2 = ease((tt - .13) / .4), rl3 = ease((tt - .5) / .5);
+      var a1s = lerp(lerp(-2.2, -3.1, h1), -1, h2), b1s = lerp(lerp(2.4, 0, h1), -.4, h2);
+      var a0s = lerp(lerp(-2.6, -2.6, h1), -1, h2), b0s = lerp(-.3, -1, h2);
+      R.ar = [lerp(a1s, -.55, rl3), lerp(a0s, -.55, rl3)]; R.el = [lerp(b1s, -.95, rl3), lerp(b0s, -.95, rl3)];
+      R.lean = lerp(lerp(-.1, .05, h1), .45, h2); R.lean = lerp(R.lean, .3, rl3);
+      R.jy = .6 * (1 - ease(tt / .42)); R.fwd = .45 * ease(tt / .4) * (1 - rl3);
+      if (R.jy > .02) R.tuck = true;
+      return R;
+    }
+    if (a.stage === 'block') {
+      var rch = a.reach || 0, up = ease((tt - .12) / .3), dn = ease((tt - .95) / .3), bk = ease((tt - 1.1) / .5);
+      R.jy = .55 * up * (1 - dn); R.fwd = rch * up * (1 - bk);
+      var crch = ease(tt / .12) * (1 - up);
+      var armUp = up * (1 - dn);
+      R.ar = [lerp(-.55, -3.0, armUp), lerp(-.55, -3.0, armUp)]; R.el = [lerp(-.95, -.05, armUp), lerp(-.95, -.05, armUp)];
+      R.lean = lerp(.3, .1, armUp) + .25 * crch;
+      R.th = [lerp(-.55, -.9, crch), lerp(-.55, -.9, crch)]; R.kn = [lerp(.95, 1.7, crch), lerp(.95, 1.7, crch)];
+      if (R.jy > .03) { R.th = [-.1, -.1]; R.kn = [.5, .5]; }
+      return R;
+    }
+    if (a.stage === 'ready') { R.fwd = a.jump ? -1.3 : 0; return R; }
+    if (a.stage === 'done') { R.fwd = a.off0 * (1 - ease(tt / .6)); return R; }
+    var tau = a.stage === 'toss' ? tt - a.tossDur : tt;
+    var a0, b0, a1, b1, lean;
+    if (a.stage === 'toss') { var u = ease(tt / .45); a0 = lerp(-.55, -2.9, u); b0 = lerp(-.95, -.1, u); }
+    else { var d = ease(tau / .45); a0 = lerp(-2.9, -.6, d); b0 = lerp(-.1, -.9, d); }
+    if (tau < -.35) { var p1 = ease((tau + .95) / .45); a1 = lerp(-.55, -2.2, p1); b1 = lerp(-.95, 2.4, p1); lean = lerp(.3, -.15, p1); }
+    else if (tau < 0) { var e = ease((tau + .35) / .35); a1 = lerp(-2.2, -3.1, e); b1 = lerp(2.4, 0, e); lean = lerp(-.15, .05, e); }
+    else { var f = ease(tau / .4); a1 = lerp(-3.1, -1, f); b1 = lerp(0, -.4, f); lean = lerp(.05, .45, f); }
+    var rl = ease((tau - .5) / .5);
+    a1 = lerp(a1, -.55, rl); b1 = lerp(b1, -.95, rl); a0 = lerp(a0, -.55, rl); b0 = lerp(b0, -.95, rl); lean = lerp(lean, .3, rl);
+    R.ar = [a1, a0]; R.el = [b1, b0]; R.lean = lean; // б’є права рука (k=0), підкидає ліва
+    if (a.jump) {
+      // розбіг за лінією, відштовхування з-за лінії, у повітрі вперед, приземлення вже в корті після удару
+      R.fwd = a.stage === 'toss' ? (tau < -.35 ? -1.3 * (1 - ease((tt - .1) / .65)) : lerp(0, 1, ease((tau + .35) / .35))) : 1 + .4 * ease(tau / .5);
+      if (tau > -.35 && tau < .35) { R.jy = .55 * (1 - Math.pow(tau / .35, 2)); R.tuck = true; }
+    }
+    return R;
+  }
+
+  function frame(now) {
+    if (!V.on) return;
+    requestAnimationFrame(frame);
+    var dt = Math.min(.05, Math.max(.004, (now - V.last) / 1000 || .016)); V.last = now;
+    var dpr = Math.min(2, window.devicePixelRatio || 1), W0 = cv.clientWidth, H0 = cv.clientHeight;
+    if (!W0 || !H0) return;
+    if (cv.width !== Math.round(W0 * dpr) || cv.height !== Math.round(H0 * dpr)) { cv.width = Math.round(W0 * dpr); cv.height = Math.round(H0 * dpr); }
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (V.n++ % 40 === 0) readColors();
+    var k = Math.min(1, dt * 7);
+    V.ox += ((G.mode === 'half' ? 4.5 : 0) - V.ox) * k;
+    V.cam.az += (V.tgt.az - V.cam.az) * k; V.cam.el += (V.tgt.el - V.cam.el) * k; V.cam.r += (V.tgt.r - V.cam.r) * k;
+    V.fpC = null;
+    if (V.fp) {
+      var fs = V.pl[V.fp.i][V.fp.role];
+      if (fs) {
+        var fa = V.act[V.fp.i + ':' + V.fp.role], fsk = skeleton(fs, '#000', fa && !(fa.stage === 'done' && (now - fa.t0) / 1000 > .7) ? actPose(fa, now) : null);
+        var hd0 = fsk.head, ey = [hd0[0] + Math.sin(fs.yaw) * .1, hd0[1] + .03, hd0[2] + Math.cos(fs.yaw) * .1];
+        var tp = -.1, ty = 0;
+        if (G.mode === 'game' && E.ballOn && V.watch !== 'free') {
+          var bb = ballWorld(), dxb = bb[0] - ey[0], dzb = bb[2] - ey[2];
+          var hb = Math.hypot(dxb, dzb) || 1;
+          tp = Math.max(-.9, Math.min(.6, Math.atan2(bb[1] - ey[1], hb)));
+          var want = Math.atan2(dxb, dzb) - fs.yaw;
+          want = Math.atan2(Math.sin(want), Math.cos(want));
+          var cur = V.look.y, dif = want - cur; dif = Math.atan2(Math.sin(dif), Math.cos(dif));
+          if (V.watch === 'always') V.look.y = cur + dif * Math.min(1, dt * 6);
+          else if (V.watch === 'auto') {
+            var lim = .5; // пів-поля зору
+            var off = Math.abs(dif);
+            if (off > lim) V.look.y = cur + (dif - Math.sign(dif) * lim * .6) * Math.min(1, dt * 6);
+          }
+          V.look.p = 0;
+        }
+        V.fpP0 = (V.fpP0 === undefined ? tp : V.fpP0 + (tp - V.fpP0) * Math.min(1, dt * 5));
+        V.fpC = ey; V.fpY = fs.yaw + V.look.y; V.fpP = Math.max(-1.2, Math.min(1.2, V.fpP0 + V.look.p));
+      }
+    }
+    setupCam(W0, H0);
+    var C = V.col;
+    cx.fillStyle = C['--free']; cx.fillRect(0, 0, W0, H0);
+    poly([[-14, 0, -8], [14, 0, -8], [14, 0, 8], [-14, 0, 8]], C['--free']);
+    poly([[-9, 0, -4.5], [9, 0, -4.5], [9, 0, 4.5], [-9, 0, 4.5]], C['--court']);
+    var lw = .06, lc = C['--lines'];
+    [[-9, -4.5, 9, -4.5], [-9, 4.5, 9, 4.5], [-9, -4.5, -9, 4.5], [9, -4.5, 9, 4.5], [0, -4.5, 0, 4.5], [-3, -4.5, -3, 4.5], [3, -4.5, 3, 4.5]].forEach(function (l) {
+      line3([l[0], .01, l[1]], [l[2], .01, l[3]], lc, lw);
+    });
+    // гравці
+    var items = [], labels = [];
+    var i0 = G.mode === 'half' ? 1 : 0;
+    for (var i = i0; i < 2; i++) ROLES.forEach(function (r) { stepPlayer(i, r.id, dt, V.act[i + ':' + r.id], now); });
+    separate(dt);
+    for (var i = i0; i < 2; i++) {
+      ROLES.forEach(function (r) {
+        var t = T[i], act = V.act[i + ':' + r.id], s = V.pl[i][r.id];
+        var A = act ? actPose(act, now) : null;
+        if (act && act.stage === 'done' && (now - act.t0) / 1000 > .7) { delete V.act[i + ':' + r.id]; A = null; }
+        var lab = labelFor(r, t.phase, t.lineup[r.id]);
+        var jersey = lab.lib ? C['--c-l'] : C[r.type === 'A' ? '--c-a' : r.type === 'H' ? '--c-h' : '--c-m'];
+        var sk = skeleton(s, jersey, A);
+        shadow(s.x + sk.ox, s.z + sk.oz, .38, .22);
+        sk.segs.forEach(function (sg) {
+          var pa = pr(sg.a), pb = pr(sg.b);
+          if (pa.z < .3 || pb.z < .3) return;
+          items.push({ z: (pa.z + pb.z) / 2, k: 's', pa: pa, pb: pb, w: sg.w * (pa.s + pb.s) / 2, c: sg.c });
+        });
+        var own = V.fpC && V.fp.i === i && V.fp.role === r.id;
+        var ph = pr(sk.head);
+        if (own) return;
+        if (ph.z > .3) items.push({ z: ph.z, k: 'h', p: ph, r: .115 * ph.s, c: SKIN });
+        labels.push({ p: pr(sk.top), txt: G.hide ? '' : lab.text, lib: lab.lib, hint: G.hints && G.mode === 'game' && HT[i][r.id] || '' });
+      });
+    }
+    // м'яч
+    if (G.mode === 'game' && E.ballOn) {
+      var bw = ballWorld(), bs = pr(bw);
+      shadow(bw[0], bw[2], .16 + .02 * E.ball.h, Math.max(.08, .3 - .04 * E.ball.h));
+      if (bs.z > .3) items.push({ z: bs.z - .1, k: 'b', p: bs, r: .13 * bs.s });
+    }
+    // сітка
+    var net = pr([0, 1.9, 0]);
+    items.push({ z: Math.max(net.z, .31), k: 'n' });
+    if (G.trail && G.mode === 'game') {
+      pruneTrail();
+      var TL = E.trail, tnow = performance.now();
+      for (var ti = 1; ti < TL.length; ti++) {
+        var u0 = TL[ti - 1], u1 = TL[ti];
+        var q0 = pr([u0.y, u0.h + .13, 4.5 - u0.x]), q1 = pr([u1.y, u1.h + .13, 4.5 - u1.x]);
+        if (q0.z < .3 || q1.z < .3) continue;
+        items.push({ z: (q0.z + q1.z) / 2, k: 'tr', pa: q0, pb: q1, w: Math.max(1.5, .07 * (q0.s + q1.s) / 2), c: C['--trail'] || '#7b2fd0', al: G.trailMode === 'short' ? Math.max(.1, 1 - (tnow - u1.t) / TRAIL_MS) : .9 });
+      }
+    }
+    items.sort(function (a, b) { return b.z - a.z; });
+    items.forEach(function (it) {
+      if (it.k === 's') {
+        cx.lineCap = 'round';
+        cx.strokeStyle = 'rgba(0,0,0,.4)'; cx.lineWidth = it.w + 1.6;
+        cx.beginPath(); cx.moveTo(it.pa.x, it.pa.y); cx.lineTo(it.pb.x, it.pb.y); cx.stroke();
+        cx.strokeStyle = it.c; cx.lineWidth = it.w;
+        cx.beginPath(); cx.moveTo(it.pa.x, it.pa.y); cx.lineTo(it.pb.x, it.pb.y); cx.stroke();
+      } else if (it.k === 'tr') {
+        cx.lineCap = 'round'; cx.globalAlpha = it.al; cx.strokeStyle = it.c; cx.lineWidth = it.w;
+        cx.beginPath(); cx.moveTo(it.pa.x, it.pa.y); cx.lineTo(it.pb.x, it.pb.y); cx.stroke(); cx.globalAlpha = 1;
+      } else if (it.k === 'h') {
+        cx.fillStyle = it.c; cx.strokeStyle = 'rgba(0,0,0,.4)'; cx.lineWidth = 1.4;
+        cx.beginPath(); cx.arc(it.p.x, it.p.y, Math.max(2, it.r), 0, 6.2832); cx.fill(); cx.stroke();
+      } else if (it.k === 'b') {
+        var r = Math.max(2.5, it.r);
+        cx.save(); cx.beginPath(); cx.arc(it.p.x, it.p.y, r, 0, 6.2832); cx.clip();
+        cx.fillStyle = '#f2c500'; cx.fillRect(it.p.x - r, it.p.y - r, 2 * r, 2 * r);
+        cx.translate(it.p.x, it.p.y); cx.rotate(-.6 + (E.ball.x + E.ball.y) * .3);
+        cx.fillStyle = '#1d4fa6';
+        cx.fillRect(-r * 1.4, -r * .3, r * 2.8, r * .6); cx.fillRect(-r * 1.4, -r * 1.05, r * 2.8, r * .5); cx.fillRect(-r * 1.4, r * .55, r * 2.8, r * .5);
+        cx.restore();
+        cx.strokeStyle = '#0f2233'; cx.lineWidth = 1.2; cx.beginPath(); cx.arc(it.p.x, it.p.y, r, 0, 6.2832); cx.stroke();
+      } else {
+        var nb = [[0, 1.43, -4.5], [0, 1.43, 4.5], [0, 2.43, 4.5], [0, 2.43, -4.5]];
+        poly(nb, 'rgba(15,34,51,.22)');
+        for (var zz = -4.5; zz <= 4.51; zz += .5) line3([0, 1.43, zz], [0, 2.43, zz], 'rgba(255,255,255,.35)', .008);
+        for (var yy = 1.43; yy <= 2.44; yy += .25) line3([0, yy, -4.5], [0, yy, 4.5], 'rgba(255,255,255,.35)', .008);
+        line3([0, 2.43, -4.5], [0, 2.43, 4.5], '#ffffff', .07);
+        line3([0, 1.43, -4.5], [0, 1.43, 4.5], '#ffffff', .03);
+        line3([0, 0, -5], [0, 2.55, -5], '#1c2733', .1); line3([0, 0, 5], [0, 2.55, 5], '#1c2733', .1);
+      }
+    });
+    // підписи над головами
+    labels.forEach(function (l) {
+      if (l.p.z < .3 || (!l.txt && !l.hint)) return;
+      var fs = Math.max(9, Math.min(15, .3 * l.p.s));
+      cx.font = '600 ' + fs + 'px Oswald, Arial, sans-serif'; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      if (l.txt) {
+        var tw = cx.measureText(l.txt).width + 8;
+        cx.fillStyle = 'rgba(15,34,51,.78)';
+        cx.beginPath(); if (cx.roundRect) cx.roundRect(l.p.x - tw / 2, l.p.y - fs * .9 - 2, tw, fs * 1.3, 4); else cx.rect(l.p.x - tw / 2, l.p.y - fs * .9 - 2, tw, fs * 1.3);
+        cx.fill();
+        cx.fillStyle = '#fff'; cx.fillText(l.txt, l.p.x, l.p.y - fs * .25 - 2);
+      }
+      if (l.hint) {
+        var hs = Math.max(9, fs - 1), hy = l.p.y - fs * 1.9 - 4;
+        cx.font = '600 ' + hs + 'px Onest, Arial, sans-serif';
+        var hw = cx.measureText(l.hint).width + 10;
+        cx.fillStyle = '#f08a4b';
+        cx.beginPath(); if (cx.roundRect) cx.roundRect(l.p.x - hw / 2, hy - hs * .8, hw, hs * 1.5, 5); else cx.rect(l.p.x - hw / 2, hy - hs * .8, hw, hs * 1.5);
+        cx.fill();
+        cx.fillStyle = '#0f2233'; cx.fillText(l.hint, l.p.x, hy);
+      }
+    });
+  }
+
+  // Керування камерою
+  (function () {
+    var ptrs = {}, last = 0;
+    cv.addEventListener('pointerdown', function (e) { cv.setPointerCapture(e.pointerId); ptrs[e.pointerId] = { x: e.clientX, y: e.clientY }; last = 0; });
+    cv.addEventListener('pointermove', function (e) {
+      var p = ptrs[e.pointerId]; if (!p) return;
+      var ids = Object.keys(ptrs);
+      if (V.fp) { V.look.y = Math.max(-2, Math.min(2, V.look.y - (e.clientX - p.x) * .005)); V.look.p = Math.max(-.8, Math.min(.8, V.look.p - (e.clientY - p.y) * .004)); }
+      else if (ids.length === 1) {
+        V.tgt.az -= (e.clientX - p.x) * .006; V.tgt.el = Math.min(1.5, Math.max(.1, V.tgt.el + (e.clientY - p.y) * .005));
+        V.cam.az = V.tgt.az; V.cam.el = V.tgt.el;
+      } else {
+        var o = ptrs[ids[0] === String(e.pointerId) ? ids[1] : ids[0]];
+        var d = Math.hypot(e.clientX - o.x, e.clientY - o.y);
+        if (last) { V.tgt.r = Math.min(42, Math.max(9, V.tgt.r * last / d)); V.cam.r = V.tgt.r; }
+        last = d;
+      }
+      p.x = e.clientX; p.y = e.clientY;
+    });
+    function up(e) { delete ptrs[e.pointerId]; last = 0; }
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+    cv.addEventListener('wheel', function (e) { e.preventDefault(); if (V.fp) return; V.tgt.r = Math.min(42, Math.max(9, V.tgt.r * Math.exp(e.deltaY * .001))); }, { passive: false });
+  })();
+  CAMS.forEach(function (c, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = c[0]; b.dataset.cam = i;
+    b.addEventListener('click', function () { V.fp = null; V.tgt.az = c[1]; V.tgt.el = c[2]; V.tgt.r = c[3]; syncCam(); });
+    $('camSeg').appendChild(b);
+  });
+  var fpSel = document.createElement('select');
+  fpSel.id = 'fpSel'; fpSel.setAttribute('aria-label', 'Гравець для виду від першої особи'); fpSel.hidden = true;
+  [0, 1].forEach(function (i) { ROLES.forEach(function (r) { var o = document.createElement('option'); o.value = i + ':' + r.id; o.textContent = NAMES[i] + ' · ' + r.short; fpSel.appendChild(o); }); });
+  fpSel.addEventListener('change', function () { var q = fpSel.value.split(':'); V.fp = { i: +q[0], role: q[1] }; V.look = { y: 0, p: 0 }; V.fpP0 = undefined; syncCam(); });
+  var wSel = document.createElement('select');
+  wSel.id = 'watchSel'; wSel.hidden = true; wSel.setAttribute('aria-label', 'Стежити за м\u2019ячем у виді від 1-ї особи');
+  [['auto', 'М\u2019яч: за потреби'], ['always', 'М\u2019яч: завжди'], ['free', 'М\u2019яч: вільно']].forEach(function (o) { var e = document.createElement('option'); e.value = o[0]; e.textContent = o[1]; wSel.appendChild(e); });
+  wSel.addEventListener('change', function () { V.watch = wSel.value; });
+  var fpBtn = document.createElement('button');
+  fpBtn.type = 'button'; fpBtn.textContent = 'Від 1-ї особи'; fpBtn.dataset.cam = 'fp';
+  fpBtn.addEventListener('click', function () { var q = fpSel.value.split(':'); V.fp = { i: +q[0], role: q[1] }; V.look = { y: 0, p: 0 }; V.fpP0 = undefined; syncCam(); });
+  $('camSeg').appendChild(fpBtn); $('camSeg').appendChild(fpSel); $('camSeg').appendChild(wSel);
+  function syncCam() {
+    fpSel.hidden = !V.fp; wSel.hidden = !V.fp;
+    document.querySelectorAll('#camSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String(V.fp ? b.dataset.cam === 'fp' : false)); });
+  }
+  [['2d', '2D'], ['3d', '3D']].forEach(function (v) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.dataset.view = v[0]; b.textContent = v[1];
+    b.addEventListener('click', function () { G.view = v[0]; onViewMode(); });
+    $('viewSeg').appendChild(b);
+  });
+  function onViewMode() {
+    var full = G.mode === 'full' || G.mode === 'game' || G.mode === 'half', both = !!G.fsBoth && full && document.querySelector('.field').classList.contains('fs'), use3d = (G.view === '3d' && full) || both;
+    $('viewGroup').hidden = !full;
+    $('court').toggleAttribute('hidden', use3d && !both); cv.hidden = !use3d; $('camSeg').hidden = !use3d;
+    document.querySelectorAll('#viewSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === G.view)); });
+    if (use3d && !V.on) { V.on = true; readColors(); V.last = performance.now(); requestAnimationFrame(frame); }
+    if (!use3d) V.on = false;
+  }
+
+
+  // Система гри: 5-1 або 4-2
+  function setSystem(sys) {
+    SYS = sys; LU = {};
+    var two = sys === '42';
+    ROLES[0].short = two ? 'Зв1' : 'Зв'; ROLES[0].name = two ? 'Зв’язуючий 1' : 'Зв’язуючий';
+    ROLES[1].short = two ? 'Зв2' : 'Діаг'; ROLES[1].name = two ? 'Зв’язуючий 2' : 'Діагональний';
+    $('sysName').textContent = 'Розстановка ' + (two ? '4-2' : '5-1');
+    document.querySelectorAll('.str-row[data-rk]').forEach(function (row) {
+      var r = RB[row.dataset.rk]; if (!r) return;
+      row.querySelector('span').textContent = r.short;
+      var inp = row.querySelector('input'); inp.setAttribute('aria-label', inp.getAttribute('aria-label').replace(/Клас гравця [^,]+,/, 'Клас гравця ' + r.short + ','));
+    });
+    document.querySelectorAll('#sysSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.sys === sys)); });
+    teams.forEach(function (t) { t.clearTransient && t.clearTransient(); t.render(0); });
+    paintGlobal();
+    newGame();
+  }
+
+  // Повний екран для майданчика
+  (function () {
+    var fld = document.querySelector('.field'), btn = $('fsBtn'), bar = $('fsBar');
+    function isFs() { return fld.classList.contains('fs'); }
+    function sync() {
+      var on = isFs();
+      btn.textContent = on ? '✕' : '⛶'; btn.setAttribute('aria-label', on ? 'Вийти з повного екрана' : 'На весь екран');
+      bar.classList.toggle('on', on && G.mode === 'game');
+      var fh = $('fsHalf'), hon = on && G.mode === 'half';
+      fh.classList.toggle('on', hon);
+      if (hon) {
+        var real = ['.rot', '.side', '.phase'].map(function (c) { return Array.prototype.slice.call($('panelA').querySelectorAll(c + ' button')).filter(function (b) { return !b.hidden; }); });
+        var sig = real.map(function (r) { return r.map(function (b) { return (b.querySelector('.n') || b).textContent; }).join('|'); }).join('/');
+        if (fh.dataset.sig !== sig) {
+          fh.dataset.sig = sig; fh.textContent = '';
+          real.forEach(function (r) {
+            var row = document.createElement('div'); row.className = 'seg';
+            r.forEach(function (b) {
+              var p = document.createElement('button'); p.type = 'button'; p.textContent = (b.querySelector('.n') || b).textContent;
+              p.addEventListener('click', function () { b.click(); setTimeout(sync, 0); });
+              p._real = b; row.appendChild(p);
+            });
+            fh.appendChild(row);
+          });
+        }
+        fh.querySelectorAll('button').forEach(function (p) { p.setAttribute('aria-pressed', p._real.getAttribute('aria-pressed') || 'false'); });
+      }
+      var fv = $('fsView'), fullm = G.mode === 'full' || G.mode === 'game' || G.mode === 'half';
+      fv.classList.toggle('on', on && fullm);
+      fv.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(G.fsBoth ? b.dataset.fv === 'both' : b.dataset.fv === G.view)); });
+      $('fsSc').textContent = $('gL').textContent + ' : ' + $('gR').textContent;
+      $('fsAuto').setAttribute('aria-pressed', String($('gAuto').checked));
+      $('fsNext').disabled = $('gNext').disabled; $('fsBack').disabled = $('gBack').disabled;
+      document.body.style.overflow = on ? 'hidden' : '';
+    }
+    function enter() {
+      fld.classList.add('fs'); G.fsBoth = false;
+      try { var r = fld.requestFullscreen && fld.requestFullscreen(); if (r && r.catch) r.catch(function () {}); } catch (e) {}
+      sync();
+    }
+    function leave() {
+      fld.classList.remove('fs'); if (G.fsBoth) { G.fsBoth = false; onViewMode(); }
+      try { if (document.fullscreenElement) { var r = document.exitFullscreen(); if (r && r.catch) r.catch(function () {}); } } catch (e) {}
+      sync();
+    }
+    btn.addEventListener('click', function () { isFs() ? leave() : enter(); });
+    $('fsWide').addEventListener('click', enter);
+    document.addEventListener('fullscreenchange', function () { if (!document.fullscreenElement && isFs()) leave(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isFs()) leave(); });
+    $('fsView').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.fv === 'both') { G.fsBoth = true; G.view = '3d'; } else { G.fsBoth = false; G.view = b.dataset.fv; }
+      onViewMode(); sync();
+    });
+    $('fsNext').addEventListener('click', function () { $('gNext').click(); });
+    $('fsBack').addEventListener('click', function () { $('gBack').click(); });
+    $('fsAuto').addEventListener('click', function () { $('gAuto').click(); sync(); });
+    setInterval(function () { if (isFs()) sync(); }, 250);
+  })();
+
+  // Збереження власних розстановок: у браузері автоматично і текстом для перенесення
+  var SKEY = 'rozstanovka51.v1';
+  function allState() { return { v: 1, A: tA.exportState(), B: tB.exportState() }; }
+  function applyState(o) { var n = 0; if (o && typeof o === 'object') { n += tA.importState(o.A); n += tB.importState(o.B); } return n; }
+  function autosave() { try { localStorage.setItem(SKEY, JSON.stringify(allState())); } catch (e) {} }
+  tA.onChange = tB.onChange = autosave;
+  try { var saved = localStorage.getItem(SKEY); if (saved) applyState(JSON.parse(saved)); } catch (e) {}
+  function sbSay(m) { $('sbMsg').textContent = m; }
+  $('sbCopy').addEventListener('click', function () {
+    var text = JSON.stringify(allState()), ta = $('sbText');
+    ta.value = text;
+    function fallback() { ta.focus(); ta.select(); sbSay('Текст виділено, натисніть Ctrl+C (на телефоні: утримуйте і «Копіювати»).'); }
+    try { navigator.clipboard.writeText(text).then(function () { sbSay('Скопійовано. Вставте текст на іншому пристрої й натисніть «Завантажити».'); }, fallback); } catch (e) { fallback(); }
+  });
+  $('sbLoad').addEventListener('click', function () {
+    var n = 0;
+    try { n = applyState(JSON.parse($('sbText').value)); } catch (e) { n = -1; }
+    if (n < 0) sbSay('Не вдалося прочитати текст. Скопіюйте його повністю з кнопки «Скопіювати всі мої розстановки».');
+    else if (!n) sbSay('У тексті немає розстановок, які можна завантажити.');
+    else { autosave(); teams.forEach(function (t) { t.render(0); }); sbSay('Завантажено розстановок: ' + n + '.'); }
+  });
+  $('sbReset').addEventListener('click', function () {
+    if (!$('sbReset').dataset.sure) { $('sbReset').dataset.sure = '1'; $('sbReset').textContent = 'Точно скинути? Натисніть ще раз'; setTimeout(function () { delete $('sbReset').dataset.sure; $('sbReset').textContent = 'Скинути всі правки'; }, 4000); return; }
+    delete $('sbReset').dataset.sure; $('sbReset').textContent = 'Скинути всі правки';
+    tA.clearState(); tB.clearState(); autosave(); teams.forEach(function (t) { t.render(0); }); sbSay('Усі ваші правки скинуто, повернулися вбудовані розстановки.');
+  });
+  tA.init(); tB.init();
+  paintMode(); paintGlobal();
+})();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+
+</body></html>

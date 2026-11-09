@@ -1,0 +1,36 @@
+{
+  "name": "VOLLEYLOCKER",
+  "short_name": "VOLLEYLOCKER",
+  "description": "Інтерактивний тренажер розстановки 5-1 у волейболі",
+  "lang": "uk",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#edf0f3",
+  "theme_color": "#0f2233",
+  "categories": [
+    "sports",
+    "education"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
