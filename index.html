@@ -1,7 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><title>VOLLEYLOCKER</title><meta name="description" content="Інтерактивний тренажер розстановки 5-1 у волейболі"><meta name="theme-color" content="#0f2233"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="fonts/fonts.css">
-<style>
+<!doctype html><html><head><meta charset=utf8><title>VOLLEYLOCKER</title><meta name="description" content="Інтерактивний тренажер розстановки 5-1 у волейболі"><meta name="theme-color" content="#0f2233"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>
 /* Layout: toolbar (field format + shared toggles) above a stage. Half field: court + one control panel. Whole field: control panel for the top half, one court with both halves around the net, control panel for the bottom half. One column on phones. */
 :root {
   --card: #ffffff;
@@ -1517,6 +1514,7 @@ button:disabled { opacity: .5; cursor: default; }
       E.ctx.tempo = tpk;
       go(a, 'hit', 800); go(d, dp, 800);
       if (cb && cb.seq[cb.idx].abs != null && a.target[pk.role]) a.target[pk.role].y = cb.seq[cb.idx].abs + cb.seq[cb.idx].run; // пайп: старт розбігу за лінією, відрив на ній
+      if (!cb && (pk.zone === 6 || pk.zone === 1 || pk.zone === 5) && a.target[pk.role]) a.target[pk.role].y = Math.max(a.target[pk.role].y, 3.6); // удар із задньої лінії: відрив за лінією 3 м
       var p = a.target[pk.role];
       var hp = cb ? rpath(E.ctx.att, cb.seq[cb.idx]) : null; E.ctx.pend = hp ? hp[hp.length - 1] : null;
       if (E.ctx.pend) p = { x: p.x - E.ctx.pend[1], y: Math.max(.6, p.y + E.ctx.pend[0]) };
