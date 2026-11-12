@@ -1,0 +1,43 @@
+VOLLEYLOCKER. Copyright (c) 2026 VOLLEYLOCKER. All rights reserved.
+Усі права захищено.
+
+EN
+This software, its source code, design, name, logo and all related materials
+("VolleyLocker") are the property of the author. The code is published only so
+that the website can work in a browser. Viewing the code does not grant any
+license to use it.
+
+Without the author's prior written permission you may NOT:
+  - copy, host, republish or redistribute VolleyLocker or any part of it;
+  - sell, rent or offer it (or a modified version) to others, free or paid;
+  - remove or bypass access codes, locks or licensing checks;
+  - generate or share access codes, or use the VolleyLocker name or logo.
+
+You MAY use the website at https://volleylocker.github.io for your own
+personal and training purposes.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+UA
+Цей застосунок, його вихідний код, дизайн, назва, логотип та пов'язані
+матеріали належать автору. Код опубліковано лише для того, щоб сайт працював
+у браузері. Можливість переглянути код не надає права його використовувати.
+
+Без попередньої письмової згоди автора ЗАБОРОНЕНО:
+  - копіювати, розміщувати на інших ресурсах або поширювати VolleyLocker чи
+    його частини;
+  - продавати, здавати в оренду чи пропонувати іншим застосунок (або його
+    змінену версію), безкоштовно чи за плату;
+  - прибирати чи обходити коди доступу, замки та перевірки ліцензії;
+  - створювати чи передавати коди доступу, використовувати назву або логотип
+    VolleyLocker.
+
+ДОЗВОЛЕНО користуватися сайтом https://volleylocker.github.io для власних
+особистих і навчальних цілей.
+
+ЗАСТОСУНОК НАДАЄТЬСЯ «ЯК Є», БЕЗ БУДЬ-ЯКИХ ГАРАНТІЙ.
+
+THIRD-PARTY COMPONENTS / СТОРОННІ КОМПОНЕНТИ
+These keep their own licenses and are not covered by the terms above:
+  - TweetNaCl.js (lib/nacl-fast.min.js): public domain (Unlicense).
+  - Fonts Onest and Oswald (fonts/): SIL Open Font License 1.1.
