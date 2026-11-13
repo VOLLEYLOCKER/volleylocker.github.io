@@ -1,7 +1,7 @@
 {
   "name": "VOLLEYLOCKER",
   "short_name": "VOLLEYLOCKER",
-  "description": "Інтерактивний тренажер розстановки 5-1 у волейболі",
+  "description": "Інтерактивний тренажер розстановки у волейболі: 5-1, 6-2, 4-2, 4-2-ц, 6-6",
   "lang": "uk",
   "start_url": "./",
   "scope": "./",
