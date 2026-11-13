@@ -1,9 +1,12 @@
-var CACHE = 'volleylocker-v2';
+var CACHE = 'volleylocker-v3';
 var FILES = [
   "./",
   "index.html",
   "manifest.webmanifest",
   "privacy.html",
+  "vendor/three.min.js",
+  "vendor/GLTFLoader.js",
+  "xbot_glb.txt",
   "fonts/fonts.css",
   "fonts/onest-cyrillic-400-normal.woff2",
   "fonts/onest-cyrillic-500-normal.woff2",
