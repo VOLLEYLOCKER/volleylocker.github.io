@@ -112,14 +112,14 @@ svg.court { display: block; width: 100%; height: auto; max-width: 100%; }
 /* ===== Мобільне керування: поле зверху, док знизу, шторка «Ще» ===== */
 body.app { padding-bottom: 112px; }
 body.app .wrap { gap: 10px; }
-body.app .brandhead { gap: 8px; flex-wrap: nowrap; }
+body.app .brandhead { gap: 6px 8px; flex-wrap: wrap; }
 body.app .brandhead .logo { border-radius: 10px; }
 body.app .brandhead .logo img { width: 40px; height: 40px; }
 body.app .brandhead h1 { font-size: 18px; margin: 0; }
 body.app .brandhead .sub { display: none; }
-body.app .brandhead > div { min-width: 0; }
+body.app .brandhead > div { min-width: 0; flex: 1 1 calc(100% - 56px); }
 body.app .brandhead .themeBtn, body.app .brandhead .langSel { min-height: 36px; padding: 4px 8px; font-size: 13px; margin-left: 0; align-self: center; }
-body.app .brandhead .themeBtn { margin-left: auto; }
+body.app .brandhead .themeBtn { margin-left: 0; }
 body.app .field:not(.fs) { position: sticky; top: 0; z-index: 40; padding: 6px; gap: 4px; }
 body.app .field:not(.fs) svg.court { height: 34vh; width: 100%; }
 body.app .field:not(.fs) .c3d { height: 34vh; aspect-ratio: auto; }
