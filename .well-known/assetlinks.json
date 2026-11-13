@@ -1,8 +1,15 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "io.github.volleylocker.app",
-    "sha256_cert_fingerprints": ["1F:F7:F9:9F:CB:3C:88:AA:83:F5:40:DA:CE:3A:BC:15:A9:D8:27:5D:C2:19:BE:16:6F:81:2B:43:C1:B8:75:40"]
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.volleylocker.app",
+      "sha256_cert_fingerprints": [
+        "1F:F7:F9:9F:CB:3C:88:AA:83:F5:40:DA:CE:3A:BC:15:A9:D8:27:5D:C2:19:BE:16:6F:81:2B:43:C1:B8:75:40",
+        "04:A6:74:9D:5B:10:06:C8:8F:BD:1A:1A:38:41:2C:EC:62:E7:5C:3D:EA:7A:90:8C:E7:38:B0:C3:5D:59:95:2F"
+      ]
+    }
   }
-}]
+]
