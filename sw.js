@@ -1,4 +1,4 @@
-var CACHE = 'volleylocker-v7';
+var CACHE = 'volleylocker-v8';
 var FILES = [
   "./",
   "index.html",
